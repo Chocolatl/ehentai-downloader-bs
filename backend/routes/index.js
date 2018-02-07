@@ -135,19 +135,19 @@ router.post('/task', function(req, res, next) {
     // 这个Promise用于保证触发done事件后再进行下一步
     return new Promise((resolve, reject) => {
       ev.on('download', info => {
-        logStream.write(`${info.fileName} download success\r\n`);
+        logStream.write(`[${new Date().toISOString()}] ${info.fileName} download success\r\n`);
       });
       ev.on('done', _ => {
-        logStream.end('end\r\n');
+        logStream.end(`[${new Date().toISOString()}] end\r\n`);
         resolve();
       });
       ev.on('fail', (err, info) => {
         taskInfo.error = err.message;
-        logStream.write(`${info.fileName} ${err.message}\r\n`);
+        logStream.write(`[${new Date().toISOString()}] ${info.fileName} ${err.message}\r\n`);
       });
       ev.on('error', err => {
         taskInfo.error = err.message;
-        logStream.write(`${err.message}\r\n`);
+        logStream.write(`[${new Date().toISOString()}] ${err.message}\r\n`);
       });
     }).then(_ => {
       taskInfo.state = taskInfo.error ? 'failure' : 'success';
@@ -156,7 +156,7 @@ router.post('/task', function(req, res, next) {
   }).catch(err => {
     taskInfo.error = err.message;
     taskInfo.state = 'error';
-    logStream.end(`${err.message}\r\n`);
+    logStream.end(`[${new Date().toISOString()}] ${err.message}\r\n`);
     fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
   }).then(_ => {
     queueLength--;
