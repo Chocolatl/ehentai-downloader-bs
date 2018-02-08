@@ -126,6 +126,37 @@ function logDownloadProcess(ev, logArr) {
 }
 
 
+function downloadTask(taskInfo) {
+  taskInfo.state = 'waiting';
+  return downloadGallery(taskInfo.gurl, taskInfo.outerPath, RANGE).then(ev => {
+    taskInfo.title = ev.dirName;
+    taskInfo.dirPath = ev.dirPath;
+    taskInfo.state = 'downloading';
+
+    logDownloadProcess(ev, taskInfo.logs);
+
+    // 这个Promise用于保证触发done事件后再进行下一步
+    return new Promise(resolve => ev.on('done', resolve));
+  }).then(_ => {
+    let hasFail = taskInfo.logs.some(log => log.event === 'fail');
+    let hasErr = taskInfo.logs.some(log => log.event === 'error');
+    if(hasErr){
+      taskInfo.state = 'error';
+    } else if (hasFail) {
+      taskInfo.state = 'failure';
+    } else {
+      taskInfo.state = 'success';
+    }
+  }).catch(err => {
+    taskInfo.state = 'error';
+    taskInfo.logs.push({
+      event: 'error',
+      date: +new Date(),
+      errMsg: err.message
+    });
+  });
+}
+
 const MAX_QUEUE_LENGTH = 3;
 let queueLength = 0;
 
@@ -138,13 +169,16 @@ router.post('/task', function(req, res, next) {
 
   let id = nanoid('0123456789ABCDEFGHXYZ', 8);
   let url = req.body.url;
-  let savePath = path.join(STORE_PATH, id);
+  let outerPath = path.join(STORE_PATH, id);
   let logs = [];
 
+  fs.mkdirSync(outerPath);
+  
   let taskInfo = {
     id: id,
     gurl: url,
     state: 'waiting',
+    outerPath: outerPath,
     dirPath: undefined,
     title: undefined,
     logs: logs
@@ -157,35 +191,7 @@ router.post('/task', function(req, res, next) {
     id: taskInfo.id
   });
 
-  fs.mkdirSync(savePath);
-
-  downloadGallery(url, savePath, RANGE).then(ev => {
-    taskInfo.title = ev.dirName;
-    taskInfo.dirPath = ev.dirPath;
-    taskInfo.state = 'downloading';
-
-    logDownloadProcess(ev, logs);
-
-    // 这个Promise用于保证触发done事件后再进行下一步
-    return new Promise(resolve => ev.on('done', resolve));
-  }).then(_ => {
-    let hasFail = logs.some(log => log.event === 'fail');
-    let hasErr = logs.some(log => log.event === 'error');
-    if(hasErr){
-      taskInfo.state = 'error';
-    } else if (hasFail) {
-      taskInfo.state = 'failure';
-    } else {
-      taskInfo.state = 'success';
-    }
-  }).catch(err => {
-    taskInfo.state = 'error';
-    logs.push({
-      event: 'error',
-      date: +new Date(),
-      errMsg: err.message
-    });
-  }).then(_ => {
+  downloadTask(taskInfo).then(_ => {
       fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
       queueLength--;
   });
