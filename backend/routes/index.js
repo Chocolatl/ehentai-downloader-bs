@@ -59,8 +59,7 @@ router.get('/tasks/list', function(req, res, next) {
       id: taskInfo.id,
       state: taskInfo.state,
       title: taskInfo.title,
-      gurl: taskInfo.gurl,
-      error: taskInfo.error
+      gurl: taskInfo.gurl
     };
   }));
 });
@@ -76,8 +75,7 @@ router.get('/task/:id/info', function(req, res, next) {
     state: taskInfo.state,
     title: taskInfo.title,
     gurl: taskInfo.gurl,
-    error: taskInfo.error,
-    log: fs.existsSync(taskInfo.logPath) ? fs.readFileSync(taskInfo.logPath, 'utf8') : ''
+    logs: taskInfo.logs
   });
 });
 
@@ -94,6 +92,40 @@ router.get('/task/:id/download', function(req, res, next) {
 });
 
 
+function logDownloadProcess(ev, logArr) {
+  ev.on('download', info => {
+    logArr.push({
+      event: 'download',
+      date: +new Date(),
+      index: info.index,
+      fileName: info.fileName
+    });
+  });
+  ev.on('done', _ => {
+    logArr.push({
+      event: 'done',
+      date: +new Date()
+    });
+  });
+  ev.on('fail', (err, info) => {
+    logArr.push({
+      event: 'fail',
+      date: +new Date(),
+      index: info.index,
+      fileName: info.fileName,
+      errMsg: err.message
+    });
+  });
+  ev.on('error', err => {
+    logArr.push({
+      event: 'error',
+      date: +new Date(),
+      errMsg: err.message
+    });
+  });
+}
+
+
 const MAX_QUEUE_LENGTH = 3;
 let queueLength = 0;
 
@@ -107,15 +139,15 @@ router.post('/task', function(req, res, next) {
   let id = nanoid('0123456789ABCDEFGHXYZ', 8);
   let url = req.body.url;
   let savePath = path.join(STORE_PATH, id);
+  let logs = [];
 
   let taskInfo = {
     id: id,
     gurl: url,
     state: 'waiting',
-    logPath: path.join(savePath, 'download.log'),
     dirPath: undefined,
     title: undefined,
-    error: undefined
+    logs: logs
   }
 
   taskList.unshift(taskInfo);
@@ -126,42 +158,36 @@ router.post('/task', function(req, res, next) {
   });
 
   fs.mkdirSync(savePath);
-  let logStream = fs.createWriteStream(taskInfo.logPath).setDefaultEncoding('utf8');
 
   downloadGallery(url, savePath, RANGE).then(ev => {
     taskInfo.title = ev.dirName;
     taskInfo.dirPath = ev.dirPath;
-
     taskInfo.state = 'downloading';
 
+    logDownloadProcess(ev, logs);
+
     // 这个Promise用于保证触发done事件后再进行下一步
-    return new Promise((resolve, reject) => {
-      ev.on('download', info => {
-        logStream.write(`[${new Date().toISOString()}] ${info.fileName} download success\r\n`);
-      });
-      ev.on('done', _ => {
-        logStream.end(`[${new Date().toISOString()}] end\r\n`);
-        resolve();
-      });
-      ev.on('fail', (err, info) => {
-        taskInfo.error = err.message;
-        logStream.write(`[${new Date().toISOString()}] ${info.fileName} ${err.message}\r\n`);
-      });
-      ev.on('error', err => {
-        taskInfo.error = err.message;
-        logStream.write(`[${new Date().toISOString()}] ${err.message}\r\n`);
-      });
-    }).then(_ => {
-      taskInfo.state = taskInfo.error ? 'failure' : 'success';
-      fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
+    return new Promise(resolve => ev.on('done', resolve)).then(_ => {
+      let hasFail = logs.some(log => log.event === 'fail');
+      let hasErr = logs.some(log => log.event === 'error');
+      if(hasErr){
+        taskInfo.state = 'error';
+      } else if (hasFail) {
+        taskInfo.state = 'failure';
+      } else {
+        taskInfo.state = 'success';
+      }
     });
   }).catch(err => {
-    taskInfo.error = err.message;
     taskInfo.state = 'error';
-    logStream.end(`[${new Date().toISOString()}] ${err.message}\r\n`);
-    fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
+    logs.push({
+      event: 'error',
+      date: +new Date(),
+      errMsg: err.message
+    });
   }).then(_ => {
-    queueLength--;
+      fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
+      queueLength--;
   });
 });
 
