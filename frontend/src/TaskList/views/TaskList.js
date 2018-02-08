@@ -12,7 +12,10 @@ class TaskList extends React.Component {
           this.props.list.map(item => (
             <TaskItem
               key={item.id}
-              task={item}
+              id={item.id}
+              title={item.title}
+              state={item.state}
+              gurl={item.gurl}
             />
           ))
         }

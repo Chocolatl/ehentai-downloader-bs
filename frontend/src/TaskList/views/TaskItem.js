@@ -9,7 +9,7 @@ class TaskItem extends React.Component {
   }
 
   render() {
-    const {id, state, title, gurl} = this.props.task;
+    const {id, state, title, gurl} = this.props;
     const stateText = ({
       'error': '发生异常',
       'failure': '下载失败',
