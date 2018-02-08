@@ -15,8 +15,10 @@ const fetchTaskListFailure = () => ({
 
 export const fetchTaskList = () => {
   return dispatch => {
+    let isiE = navigator.userAgent.indexOf("MSIE ") > -1 || navigator.userAgent.indexOf("Trident/") > -1;
+    let fetchURL = isiE ? '/tasks/list?' + +new Date() : '/tasks/list';
     dispatch(fetchTaskListStarted());
-    fetch('/tasks/list').then(res => {
+    fetch(fetchURL).then(res => {
       if (res.status !== 200) {
         return dispatch(fetchTaskListFailure());
       }
