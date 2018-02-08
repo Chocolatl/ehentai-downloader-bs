@@ -31,7 +31,7 @@ class TaskItem extends React.Component {
   }
 
   onClickDownload(ev) {
-    if(this.props.task.state !== 'success') {
+    if(this.props.state !== 'success') {
       alert('状态非下载成功');
       ev.preventDefault();
     }
