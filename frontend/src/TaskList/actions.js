@@ -52,3 +52,15 @@ export const addTaskItem = (url) => {
     });
   }
 }
+
+export const retryTaskItem = (id) => {
+  return dispatch => {
+    fetch('/task/' + id, {
+      method: 'PUT'
+    }).then(res => {
+      dispatch(fetchTaskList());
+    }).catch(err => {
+      console.error(err);
+    });
+  }
+}

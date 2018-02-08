@@ -6,7 +6,7 @@ const nanoid = require('nanoid/generate');
 const archiver = require('archiver');
 const downloadGallery = require('ehentai-downloader')({
   download: {
-    downloadLog: false,
+    downloadLog: true,
     retries: 3
   }
 });
@@ -197,16 +197,26 @@ router.post('/task', function(req, res, next) {
   });
 });
 
-// 下载失败时请求重试的路由
-// router.put('/task/:id', function(req, res, next) {
-//   let taskInfo = taskList.find(e => e.id === req.params.id);
-//   if(!taskInfo) {
-//     return res.status(404).end();
-//   }
-//   if(taskInfo.state !== 'failure') {
-//     return res.status(403).end();
-//   }
 
-// });
+// 下载失败时请求重试的路由
+router.put('/task/:id', function(req, res, next) {
+  let taskInfo = taskList.find(e => e.id === req.params.id);
+  if(!taskInfo) {
+    return res.status(404).end();
+  }
+  if(taskInfo.state !== 'failure') {
+    return res.status(403).end();
+  }
+  if(queueLength === MAX_QUEUE_LENGTH) {
+    return res.status(403).end();
+  } else {
+    queueLength++;
+  }
+  res.status(204).end();
+  downloadTask(taskInfo).then(_ => {
+    fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
+    queueLength--;
+  });
+});
 
 module.exports = router;
