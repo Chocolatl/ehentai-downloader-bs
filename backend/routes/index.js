@@ -167,17 +167,17 @@ router.post('/task', function(req, res, next) {
     logDownloadProcess(ev, logs);
 
     // 这个Promise用于保证触发done事件后再进行下一步
-    return new Promise(resolve => ev.on('done', resolve)).then(_ => {
-      let hasFail = logs.some(log => log.event === 'fail');
-      let hasErr = logs.some(log => log.event === 'error');
-      if(hasErr){
-        taskInfo.state = 'error';
-      } else if (hasFail) {
-        taskInfo.state = 'failure';
-      } else {
-        taskInfo.state = 'success';
-      }
-    });
+    return new Promise(resolve => ev.on('done', resolve));
+  }).then(_ => {
+    let hasFail = logs.some(log => log.event === 'fail');
+    let hasErr = logs.some(log => log.event === 'error');
+    if(hasErr){
+      taskInfo.state = 'error';
+    } else if (hasFail) {
+      taskInfo.state = 'failure';
+    } else {
+      taskInfo.state = 'success';
+    }
   }).catch(err => {
     taskInfo.state = 'error';
     logs.push({
@@ -190,5 +190,17 @@ router.post('/task', function(req, res, next) {
       queueLength--;
   });
 });
+
+// 下载失败时请求重试的路由
+// router.put('/task/:id', function(req, res, next) {
+//   let taskInfo = taskList.find(e => e.id === req.params.id);
+//   if(!taskInfo) {
+//     return res.status(404).end();
+//   }
+//   if(taskInfo.state !== 'failure') {
+//     return res.status(403).end();
+//   }
+
+// });
 
 module.exports = router;
