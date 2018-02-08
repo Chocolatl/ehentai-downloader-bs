@@ -121,7 +121,9 @@ router.post('/task', function(req, res, next) {
   taskList.unshift(taskInfo);
 
   // end
-  res.end();
+  res.status(201).json({
+    id: taskInfo.id
+  });
 
   fs.mkdirSync(savePath);
   let logStream = fs.createWriteStream(taskInfo.logPath).setDefaultEncoding('utf8');
