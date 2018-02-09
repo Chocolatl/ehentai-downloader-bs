@@ -46,7 +46,9 @@ class TaskList {
 
   retry(id) {
     let taskInfo = this.find(id);
-    if(!taskInfo) return null;
+    if(!taskInfo || taskInfo.state !== 'failure') {
+      return null;
+    }
     return {
       taskInfo: taskInfo,
       donePromise: downloadTask(taskInfo).then(this.save.bind(this))

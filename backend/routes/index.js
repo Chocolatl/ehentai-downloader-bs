@@ -133,9 +133,6 @@ router.post('/task', function(req, res, next) {
 // 下载失败时请求重试的路由
 router.put('/task/:taskid', function(req, res, next) {
   let taskInfo = req.taskInfo;
-  if(taskInfo.state !== 'failure') {
-    return res.status(403).end();
-  }
   if(queue.isFull()) {
     return res.status(403).end();
   } else {
@@ -143,9 +140,11 @@ router.put('/task/:taskid', function(req, res, next) {
   }
 
   let task = taskList.retry(taskInfo.id);
-  let {donePromise} = task;
+  if(!task) {
+    return res.status(403).end();
+  }
 
-  donePromise.then(_ => {
+  task.donePromise.then(_ => {
     queue.dequeue();
   });
 
