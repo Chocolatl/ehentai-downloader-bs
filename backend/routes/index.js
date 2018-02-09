@@ -53,6 +53,16 @@ const RANGE = (function(begin, end, _ = []){
 const taskList = fs.existsSync(STORE_DB_PATH) ? JSON.parse(fs.readFileSync(STORE_DB_PATH)) : [];
 
 
+router.param('taskid', function(req, res, next, taskid) {
+  let taskInfo = taskList.find(e => e.id === taskid);
+  if(!taskInfo) {
+    return res.status(404).end();
+  } else {
+    req.taskInfo = taskInfo;
+    next();
+  }
+});
+
 router.get('/tasks/list', function(req, res, next) {
   res.json(taskList.map(taskInfo => {
     return {
@@ -65,11 +75,8 @@ router.get('/tasks/list', function(req, res, next) {
 });
 
 
-router.get('/task/:id/info', function(req, res, next) {
-  let taskInfo = taskList.find(e => e.id === req.params.id);
-  if(!taskInfo) {
-    return res.status(404).end();
-  }
+router.get('/task/:taskid/info', function(req, res, next) {
+  let taskInfo = req.taskInfo;
   return res.json({
     id: taskInfo.id,
     state: taskInfo.state,
@@ -80,9 +87,8 @@ router.get('/task/:id/info', function(req, res, next) {
 });
 
 
-router.get('/task/:id/download', function(req, res, next) {
-  let taskInfo = taskList.find(e => e.id === req.params.id);
-  if(!taskInfo) return res.status(404).end();
+router.get('/task/:taskid/download', function(req, res, next) {
+  let taskInfo = req.taskInfo;
   if(taskInfo.state !== 'success') {
     return res.status(404).end(taskInfo.state);
   } else {
@@ -213,11 +219,8 @@ router.post('/task', function(req, res, next) {
 
 
 // 下载失败时请求重试的路由
-router.put('/task/:id', function(req, res, next) {
-  let taskInfo = taskList.find(e => e.id === req.params.id);
-  if(!taskInfo) {
-    return res.status(404).end();
-  }
+router.put('/task/:taskid', function(req, res, next) {
+  let taskInfo = req.taskInfo;
   if(taskInfo.state !== 'failure') {
     return res.status(403).end();
   }
