@@ -82,7 +82,7 @@ router.get('/task/:taskid/download', function(req, res, next) {
   }
 });
 
-function DownloadQueue(maxLen) {
+function TaskQueue(maxLen) {
   return {
     nowLen: 0,
     maxLen: maxLen,
@@ -108,7 +108,7 @@ function DownloadQueue(maxLen) {
 }
 
 const MAX_QUEUE_LENGTH = 3;
-const queue = new DownloadQueue(MAX_QUEUE_LENGTH);
+const queue = new TaskQueue(MAX_QUEUE_LENGTH);
 
 router.post('/task', function(req, res, next) {
   if(queue.isFull()) {
