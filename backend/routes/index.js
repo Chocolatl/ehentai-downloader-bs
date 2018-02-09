@@ -211,22 +211,17 @@ router.post('/task', function(req, res, next) {
   }
 
   let id = nanoid('0123456789ABCDEFGHXYZ', 8);
-  let url = req.body.url;
-  let outerPath = path.join(STORE_PATH, id);
-  let logs = [];
-
-  fs.mkdirSync(outerPath);
-  
   let taskInfo = {
-    id: id,
-    gurl: url,
-    state: 'waiting',
-    outerPath: outerPath,
-    dirPath: undefined,
-    title: undefined,
-    logs: logs
+    id        : id,
+    state     : 'waiting',
+    gurl      : req.body.url,
+    outerPath : path.join(STORE_PATH, id),
+    dirPath   : undefined,
+    title     : undefined,
+    logs      : []
   }
 
+  fs.mkdirSync(taskInfo.outerPath);
   taskList.unshift(taskInfo);
 
   // end
