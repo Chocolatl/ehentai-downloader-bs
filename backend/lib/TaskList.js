@@ -3,12 +3,6 @@ const path = require('path');
 const nanoid = require('nanoid/generate');
 const downloadGallery = require('ehentai-downloader')();
 
-const RANGE = (function(begin, end, _ = []){
-  for(let i = begin; i <= end; i++)
-    _.push(i);
-  return _;
-})(0, 100); // 只下载序号为0-100的图片
-
 class TaskList {
   constructor(storeDirPath) {
     this.STORE_DIR_PATH = storeDirPath;
@@ -92,7 +86,7 @@ function logDownloadProcess(ev, logArr) {
 
 function downloadTask(taskInfo) {
   taskInfo.state = 'waiting';
-  return downloadGallery(taskInfo.gurl, taskInfo.outerPath, RANGE).then(ev => {
+  return downloadGallery(taskInfo.gurl, taskInfo.outerPath).then(ev => {
     taskInfo.title = ev.dirName;
     taskInfo.dirPath = ev.dirPath;
     taskInfo.state = 'downloading';
