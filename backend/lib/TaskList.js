@@ -87,16 +87,15 @@ function logDownloadProcess(ev, logArr) {
 function downloadTask(taskInfo) {
   taskInfo.state = 'waiting';
   return downloadGallery(taskInfo.gurl, taskInfo.outerPath).then(ev => {
-    taskInfo.title = ev.dirName;
+    taskInfo.title   = ev.dirName;
     taskInfo.dirPath = ev.dirPath;
-    taskInfo.state = 'downloading';
-
+    taskInfo.state   = 'downloading';
     logDownloadProcess(ev, taskInfo.logs);
 
     // 这个Promise用于保证触发done事件后再进行下一步
     return new Promise(resolve => ev.on('done', resolve));
-  }).then(_ => {
 
+  }).then(function() {
     // 因为允许重试，所以日志数组中可能会有多次下载的日志
     // 这里通过'done'事件找到最后一次下载的下载日志起始位置
     // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
@@ -107,7 +106,6 @@ function downloadTask(taskInfo) {
         break;
       }
     }
-
     let lastLogs = taskInfo.logs.slice(beginIndex); // 最后一次下载的日志数组
     let hasFail = lastLogs.some(log => log.event === 'fail');
     let hasErr = lastLogs.some(log => log.event === 'error');
