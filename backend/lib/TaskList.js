@@ -65,36 +65,33 @@ class TaskList {
   }
 }
 
+logActions = {
+  download: (index, fileName, event = 'download', date = +new Date()) => ({
+    event, index, fileName, date
+  }),
+  done: (event = 'done', date = +new Date()) => ({
+    event, date
+  }),
+  fail: (index, fileName, errMsg, event = 'fail', date = +new Date()) => ({
+    event, index, fileName, errMsg, date
+  }),
+  error: (errMsg, event = 'error', date = +new Date()) => ({
+    event, errMsg, date
+  })
+}
+
 function logDownloadProcess(ev, logArr) {
   ev.on('download', info => {
-    logArr.push({
-      event: 'download',
-      date: +new Date(),
-      index: info.index,
-      fileName: info.fileName
-    });
+    logArr.push(logActions.download(info.index, info.fileName));
   });
   ev.on('done', _ => {
-    logArr.push({
-      event: 'done',
-      date: +new Date()
-    });
+    logArr.push(logActions.done());
   });
   ev.on('fail', (err, info) => {
-    logArr.push({
-      event: 'fail',
-      date: +new Date(),
-      index: info.index,
-      fileName: info.fileName,
-      errMsg: err.message
-    });
+    logArr.push(logActions.fail(info.index, info.fileName, err.message));
   });
   ev.on('error', err => {
-    logArr.push({
-      event: 'error',
-      date: +new Date(),
-      errMsg: err.message
-    });
+    logArr.push(logActions.error(err.message));
   });
 }
 
@@ -135,11 +132,7 @@ function downloadTask(taskInfo) {
     }
   }).catch(err => {
     taskInfo.state = 'error';
-    taskInfo.logs.push({
-      event: 'error',
-      date: +new Date(),
-      errMsg: err.message
-    });
+    taskInfo.logs.push(logActions.error(err.message));
   });
 }
 
