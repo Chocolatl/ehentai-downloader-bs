@@ -1,12 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const nanoid = require('nanoid/generate');
-const downloadGallery = require('ehentai-downloader')({
-  download: {
-    downloadLog: true,
-    retries: 3
-  }
-});
+const downloadGallery = require('ehentai-downloader')();
 
 const RANGE = (function(begin, end, _ = []){
   for(let i = begin; i <= end; i++)
