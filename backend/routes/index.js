@@ -3,17 +3,8 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
+const _ = require('lodash');
 const {TaskList, TaskQueue} = require('../lib/TaskList.js');
-
-function objectPick(obj, keys) {
-  let o = {};
-  for(let key of keys) {
-    if(key in obj) {
-      o[key] = obj[key];
-    }
-  }
-  return o;
-}
 
 function archive(srcDir, destStream) {
   return new Promise((resolve, reject) => {
@@ -61,14 +52,14 @@ router.param('taskid', function(req, res, next, taskid) {
 
 router.get('/tasks/list', function(req, res, next) {
   res.json(taskList.all().map(function(taskInfo) {
-    return objectPick(taskInfo, ['id', 'state', 'title', 'gurl']);
+    return _.pick(taskInfo, ['id', 'state', 'title', 'gurl']);
   }));
 });
 
 
 router.get('/task/:taskid/info', function(req, res, next) {
   let taskInfo = req.taskInfo;
-  return res.json(objectPick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']));
+  return res.json(_.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']));
 });
 
 
