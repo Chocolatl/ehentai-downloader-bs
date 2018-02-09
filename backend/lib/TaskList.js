@@ -143,4 +143,32 @@ function downloadTask(taskInfo) {
   });
 }
 
-module.exports = TaskList;
+function TaskQueue(maxLen) {
+  return {
+    nowLen: 0,
+    maxLen: maxLen,
+    isFull: function() {
+      return this.maxLen === this.nowLen;
+    },
+    isEmpty: function() {
+      return this.nowLen === 0;
+    },
+    enqueue: function() {
+      if(this.isFull()) {
+        throw new Error('Full');
+      }
+      return ++this.nowLen;
+    },
+    dequeue: function() {
+      if(this.isEmpty()) {
+        throw new Error('Empty');
+      }
+      return --this.nowLen;
+    }
+  };
+}
+
+module.exports = {
+  TaskList,
+  TaskQueue
+};

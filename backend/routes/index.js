@@ -3,7 +3,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
-const TaskList = require('../lib/TaskList.js');
+const {TaskList, TaskQueue} = require('../lib/TaskList.js');
 
 function objectPick(obj, keys) {
   let o = {};
@@ -81,31 +81,6 @@ router.get('/task/:taskid/download', function(req, res, next) {
     archive(taskInfo.dirPath, res);
   }
 });
-
-function TaskQueue(maxLen) {
-  return {
-    nowLen: 0,
-    maxLen: maxLen,
-    isFull: function() {
-      return this.maxLen === this.nowLen;
-    },
-    isEmpty: function() {
-      return this.nowLen === 0;
-    },
-    enqueue: function() {
-      if(this.isFull()) {
-        throw new Error('Full');
-      }
-      return ++this.nowLen;
-    },
-    dequeue: function() {
-      if(this.isEmpty()) {
-        throw new Error('Empty');
-      }
-      return --this.nowLen;
-    }
-  };
-}
 
 const MAX_QUEUE_LENGTH = 3;
 const queue = new TaskQueue(MAX_QUEUE_LENGTH);
