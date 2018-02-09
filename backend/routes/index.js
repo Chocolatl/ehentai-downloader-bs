@@ -213,7 +213,7 @@ router.post('/task', function(req, res, next) {
   let id = nanoid('0123456789ABCDEFGHXYZ', 8);
   let taskInfo = {
     id        : id,
-    state     : 'waiting',
+    state     : undefined,
     gurl      : req.body.url,
     outerPath : path.join(STORE_PATH, id),
     dirPath   : undefined,
