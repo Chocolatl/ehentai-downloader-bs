@@ -176,15 +176,39 @@ function downloadTask(taskInfo) {
   });
 }
 
+function DownloadQueue(maxLen) {
+  return {
+    nowLen: 0,
+    maxLen: maxLen,
+    isFull: function() {
+      return this.maxLen === this.nowLen;
+    },
+    isEmpty: function() {
+      return this.nowLen === 0;
+    },
+    enqueue: function() {
+      if(this.isFull()) {
+        throw new Error('Full');
+      }
+      return ++this.nowLen;
+    },
+    dequeue: function() {
+      if(this.isEmpty()) {
+        throw new Error('Empty');
+      }
+      return --this.nowLen;
+    }
+  };
+}
 
 const MAX_QUEUE_LENGTH = 3;
-let queueLength = 0;
+const queue = new DownloadQueue(MAX_QUEUE_LENGTH);
 
 router.post('/task', function(req, res, next) {
-  if(queueLength === MAX_QUEUE_LENGTH) {
+  if(queue.isFull()) {
     return res.status(403).end();
   } else {
-    queueLength++;
+    queue.enqueue();
   }
 
   let id = nanoid('0123456789ABCDEFGHXYZ', 8);
@@ -213,7 +237,7 @@ router.post('/task', function(req, res, next) {
 
   downloadTask(taskInfo).then(_ => {
       fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
-      queueLength--;
+      queue.dequeue();
   });
 });
 
@@ -224,15 +248,15 @@ router.put('/task/:taskid', function(req, res, next) {
   if(taskInfo.state !== 'failure') {
     return res.status(403).end();
   }
-  if(queueLength === MAX_QUEUE_LENGTH) {
+  if(queue.isFull()) {
     return res.status(403).end();
   } else {
-    queueLength++;
+    queue.enqueue();
   }
   res.status(204).end();
   downloadTask(taskInfo).then(_ => {
     fs.writeFileSync(STORE_DB_PATH, JSON.stringify(taskList));  // 保存taskList
-    queueLength--;
+    queue.dequeue();
   });
 });
 
