@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const nanoid = require('nanoid/generate');
+const _ = require('lodash');
 const downloadGallery = require('ehentai-downloader')();
 
 class TaskList {
@@ -96,16 +97,11 @@ function downloadTask(taskInfo) {
     return new Promise(resolve => ev.on('done', resolve));
 
   }).then(function() {
+    
     // 因为允许重试，所以日志数组中可能会有多次下载的日志
-    // 这里通过'done'事件找到最后一次下载的下载日志起始位置
+    // 这里通过'done'事件寻找最后一次下载的下载日志起始位置
     // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
-    let beginIndex = 0;
-    for (let i = taskInfo.logs.length - 2; i !== 0; i--) {
-      if (taskInfo.logs[i].event === 'done') {
-        beginIndex = i + 1;
-        break;
-      }
-    }
+    let beginIndex = _.findLastIndex(taskInfo.logs, {'event': 'done'}, taskInfo.logs.length - 2) + 1;
     let lastLogs = taskInfo.logs.slice(beginIndex); // 最后一次下载的日志数组
     let hasFail = lastLogs.some(log => log.event === 'fail');
     let hasErr = lastLogs.some(log => log.event === 'error');
