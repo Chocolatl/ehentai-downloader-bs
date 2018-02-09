@@ -11,6 +11,16 @@ const downloadGallery = require('ehentai-downloader')({
   }
 });
 
+function objectPick(obj, keys) {
+  let o = {};
+  for(let key of keys) {
+    if(key in obj) {
+      o[key] = obj[key];
+    }
+  }
+  return o;
+}
+
 function archive(srcDir, destStream) {
   return new Promise((resolve, reject) => {
     let archive = archiver('zip', {
@@ -64,26 +74,15 @@ router.param('taskid', function(req, res, next, taskid) {
 });
 
 router.get('/tasks/list', function(req, res, next) {
-  res.json(taskList.map(taskInfo => {
-    return {
-      id: taskInfo.id,
-      state: taskInfo.state,
-      title: taskInfo.title,
-      gurl: taskInfo.gurl
-    };
+  res.json(taskList.map(function(taskInfo) {
+    return objectPick(taskInfo, ['id', 'state', 'title', 'gurl']);
   }));
 });
 
 
 router.get('/task/:taskid/info', function(req, res, next) {
   let taskInfo = req.taskInfo;
-  return res.json({
-    id: taskInfo.id,
-    state: taskInfo.state,
-    title: taskInfo.title,
-    gurl: taskInfo.gurl,
-    logs: taskInfo.logs
-  });
+  return res.json(objectPick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']));
 });
 
 
