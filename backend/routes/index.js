@@ -58,7 +58,10 @@ router.get('/tasks/list', function(req, res, next) {
 
 router.get('/task/:taskid/info', function(req, res, next) {
   let taskInfo = req.taskInfo;
-  return res.json(_.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']));
+  let files = Object.entries(taskInfo.files)
+    .map(([index, fileName]) => ({index: +index, fileName}))
+    .sort(({index: i1}, {index: i2}) => i1 - i2);
+  return res.json(Object.assign(_.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']), {files}));
 });
 
 router.get('/task/:taskid/download', function(req, res, next) {

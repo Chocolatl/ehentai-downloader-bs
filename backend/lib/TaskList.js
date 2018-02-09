@@ -24,6 +24,7 @@ class TaskList {
       outerPath : path.join(this.STORE_DIR_PATH, id),
       dirPath   : undefined,
       title     : undefined,
+      files     : {},
       logs      : []
     }
     fs.mkdirSync(taskInfo.outerPath);
@@ -85,6 +86,12 @@ function logDownloadProcess(ev, logArr) {
   });
 }
 
+function logDownloadedFiles(ev, filesObj) {
+  ev.on('download', info => {
+    filesObj[info.index] = info.fileName;
+  });
+}
+
 function downloadTask(taskInfo) {
   taskInfo.state = 'waiting';
   return downloadGallery(taskInfo.gurl, taskInfo.outerPath).then(ev => {
@@ -92,6 +99,7 @@ function downloadTask(taskInfo) {
     taskInfo.dirPath = ev.dirPath;
     taskInfo.state   = 'downloading';
     logDownloadProcess(ev, taskInfo.logs);
+    logDownloadedFiles(ev, taskInfo.files);
 
     // 这个Promise用于保证触发done事件后再进行下一步
     return new Promise(resolve => ev.on('done', resolve));

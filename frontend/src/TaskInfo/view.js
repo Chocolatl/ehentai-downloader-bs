@@ -11,15 +11,17 @@ class TaskInfo extends React.Component {
     } else if (info.errMsg) {
       return <div>{info.errMsg}</div>
     } else {
-      let {id, state, title, gurl, logs} = info;
+      let {id, state, title, gurl, logs, files} = info;
       return (
         <div className="task-info">
           <p>ID：{id}</p>
           <p>状态：{state}</p>
           <p>标题：{title}</p>
           <p>源地址：{gurl}</p>
+          <p>下载的文件：</p>
+          <pre>{files.map(JSON.stringify).join('\r\n')}</pre>
           <p>下载日志：</p>
-          <pre>{logs.map(log => JSON.stringify(log)).join('\r\n')}</pre>
+          <pre>{logs.map(JSON.stringify).join('\r\n')}</pre>
         </div>
       )
     }
