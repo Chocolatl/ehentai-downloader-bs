@@ -56,12 +56,10 @@ router.get('/tasks/list', function(req, res, next) {
   }));
 });
 
-
 router.get('/task/:taskid/info', function(req, res, next) {
   let taskInfo = req.taskInfo;
   return res.json(_.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']));
 });
-
 
 router.get('/task/:taskid/download', function(req, res, next) {
   let taskInfo = req.taskInfo;
@@ -94,7 +92,6 @@ router.post('/task', function(req, res, next) {
     id: taskInfo.id
   });
 });
-
 
 // 下载失败时请求重试的路由
 router.put('/task/:taskid', function(req, res, next) {
