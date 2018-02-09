@@ -74,6 +74,18 @@ router.get('/task/:taskid/download', function(req, res, next) {
   }
 });
 
+router.get('/task/:taskid/preview/:index', function(req, res, next) {
+  let taskInfo = req.taskInfo;
+  let index = req.params.index;
+  let fileName = taskInfo.files[+index];
+  if(fileName === undefined) {
+    return res.status(404).end();
+  } else {
+    let filePath = path.join(taskInfo.dirPath, fileName);
+    fs.existsSync(filePath) ? res.sendFile(filePath) : res.status(404).end();
+  }
+});
+
 const MAX_QUEUE_LENGTH = 3;
 const queue = new TaskQueue(MAX_QUEUE_LENGTH);
 
