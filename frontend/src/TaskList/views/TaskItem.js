@@ -26,6 +26,7 @@ class TaskItem extends React.Component {
         <div className="ctr">
           <span className={`state ${state}`}>{stateText}</span>
           <Link to={'/info/' + id}>详细信息</Link>
+          <Link to={'/preview/' + id}>在线预览</Link>
           {
             state !== 'failure' ?
             <a href={`/task/${id}/download`} download onClick={this.onClickDownload}>下载文件</a> :

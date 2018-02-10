@@ -1,0 +1,29 @@
+.task-preview header {
+  margin-bottom: 20px;
+}
+
+.task-preview .title {
+  font-size: 16px;
+  margin: 20px 0;
+  font-weight: normal;
+  text-align: center;
+}
+
+.task-preview .page-nav {
+  text-align: center;
+}
+
+.task-preview .pos-info {
+  display: inline-block;
+  width: 160px;
+  text-align: center;
+}
+
+.task-preview .view-area {
+  text-align: center;
+}
+
+.task-preview .view-area img {
+  max-width: 960px;
+  width: 100%;
+}
