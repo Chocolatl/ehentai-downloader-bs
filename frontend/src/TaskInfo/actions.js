@@ -26,7 +26,7 @@ export const fetchTaskInfo = (id) => {
       res.json().then(info => {
         dispatch(fetchTaskInfoSuccess(info));
       }).catch(err => {
-        console.log(err);
+        console.error(err);
         dispatch(fetchTaskInfoFailure());
       });
     }).catch(err => {
