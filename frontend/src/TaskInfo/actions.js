@@ -18,8 +18,10 @@ const fetchTaskInfoFailure = () => ({
 
 export const fetchTaskInfo = (id) => {
   return dispatch => {
+    let isiE = navigator.userAgent.indexOf("MSIE ") > -1 || navigator.userAgent.indexOf("Trident/") > -1;
+    let fetchURL = isiE ? `/task/${id}/info?${+new Date()}` : `/task/${id}/info`;
     dispatch(fetchTaskInfoStarted());
-    fetch(`/task/${id}/info`).then(res => {
+    fetch(fetchURL).then(res => {
       if (res.status !== 200) {
         return dispatch(fetchTaskInfoFailure());
       }
