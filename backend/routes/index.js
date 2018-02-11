@@ -43,7 +43,9 @@ const taskList = new TaskList(STORE_PATH);
 router.param('taskid', function(req, res, next, taskid) {
   let taskInfo = taskList.find(taskid);
   if(!taskInfo) {
-    return res.status(404).end();
+    return res.status(404).json({
+      errMsg: '该任务不存在'
+    });
   } else {
     req.taskInfo = taskInfo;
     next();
@@ -91,7 +93,9 @@ const queue = new TaskQueue(MAX_QUEUE_LENGTH);
 
 router.post('/task', function(req, res, next) {
   if(queue.isFull()) {
-    return res.status(403).end();
+    return res.status(403).json({
+      errMsg: '下载队列已满'
+    });
   } else {
     queue.enqueue();
   }
@@ -112,14 +116,18 @@ router.post('/task', function(req, res, next) {
 router.put('/task/:taskid', function(req, res, next) {
   let taskInfo = req.taskInfo;
   if(queue.isFull()) {
-    return res.status(403).end();
+    return res.status(403).json({
+      errMsg: '下载队列已满'
+    });
   } else {
     queue.enqueue();
   }
 
   let task = taskList.retry(taskInfo.id);
   if(!task) {
-    return res.status(403).end();
+    return res.status(403).json({
+      errMsg: '该任务不存在'
+    });
   }
 
   task.donePromise.then(_ => {
