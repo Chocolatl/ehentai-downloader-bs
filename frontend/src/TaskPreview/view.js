@@ -12,7 +12,9 @@ class TaskPreview extends React.Component {
     }
     this.prev = this.prev.bind(this);
     this.next = this.next.bind(this);
+    this.firstPrompt = true;
   }
+
   render() {
     if(!this.props.info) {
       return null;
@@ -26,6 +28,10 @@ class TaskPreview extends React.Component {
     if(files.length === 0) {
       this.props.displayMessage('没有可以加载的东西');
       return null;
+    }
+    if(this.firstPrompt && state !== 'success') {
+      this.firstPrompt = false;
+      this.props.displayMessage('当前任务没有完成下载，仅可以预览部分图片');
     }
     return (
       <div className="task-preview">
@@ -51,6 +57,8 @@ class TaskPreview extends React.Component {
       this.setState({
         currentIndex: this.state.currentIndex - 1
       });
+    } else {
+      this.props.displayMessage('第一张');
     }
   }
 
@@ -59,6 +67,8 @@ class TaskPreview extends React.Component {
       this.setState({
         currentIndex: this.state.currentIndex + 1
       });
+    } else {
+      this.props.displayMessage('最后一张');
     }
   }
 
