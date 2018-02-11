@@ -67,7 +67,7 @@ router.get('/task/:taskid/info', function(req, res, next) {
 router.get('/task/:taskid/download', function(req, res, next) {
   let taskInfo = req.taskInfo;
   if(taskInfo.state !== 'success') {
-    return res.status(404).end(taskInfo.state);
+    return res.status(404).end();
   } else {
     res.set('Content-Disposition','attachment;filename*=UTF-8\'\'' + encodeURIComponent(taskInfo.title + '.zip'));
     archive(taskInfo.dirPath, res);
