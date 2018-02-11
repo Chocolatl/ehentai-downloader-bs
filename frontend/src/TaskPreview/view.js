@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {fetchTaskFilesInfo} from './actions';
+import {actions as messageActions} from '../MessageProvider';
 import './style.css';
 
 class TaskPreview extends React.Component {
@@ -14,15 +15,17 @@ class TaskPreview extends React.Component {
   }
   render() {
     if(!this.props.info) {
-      return <div>加载中...</div>
+      return null;
     }
-    if (this.props.info.errMsg) {
-      return <div>{this.props.info.errMsg}</div>
+    if(this.props.info.errMsg) {
+      this.props.displayMessage(this.props.info.errMsg);
+      return null;
     }
     let {id, title, state, files} = this.props.info;
     let currentIndex = this.state.currentIndex;
     if(files.length === 0) {
-      return <div>没有可以加载的东西</div>
+      this.props.displayMessage('没有可以加载的东西');
+      return null;
     }
     return (
       <div className="task-preview">
@@ -69,7 +72,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchTaskFilesInfo: (id) => dispatch(fetchTaskFilesInfo(id))
+  fetchTaskFilesInfo: (id) => dispatch(fetchTaskFilesInfo(id)),
+  displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaskPreview);

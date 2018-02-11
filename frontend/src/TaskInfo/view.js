@@ -1,15 +1,17 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {fetchTaskInfo} from './actions';
+import {actions as messageActions} from '../MessageProvider';
 import './style.css';
 
 class TaskInfo extends React.Component {
   render() {
     const info = this.props.info;
     if(!info) {
-      return <div>请稍等</div>
+      return null;
     } else if (info.errMsg) {
-      return <div>{info.errMsg}</div>
+      this.props.displayMessage(info.errMsg);
+      return null;
     } else {
       let {id, state, title, gurl, logs, files} = info;
       return (
@@ -37,7 +39,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchTaskInfo: infoUrl => dispatch(fetchTaskInfo(infoUrl))
+  fetchTaskInfo: infoUrl => dispatch(fetchTaskInfo(infoUrl)),
+  displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaskInfo);
