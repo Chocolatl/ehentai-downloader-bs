@@ -55,7 +55,7 @@ export const addTaskItem = (url, onSuccess = (f) => f, onFailure = (f) => f) => 
         });
       }
     }).catch(err => {
-      onFailure({errMsg: err.message})
+      onFailure({errMsg: err.message});
       console.error(err);
     });
   }
