@@ -61,13 +61,21 @@ export const addTaskItem = (url, onSuccess = (f) => f, onFailure = (f) => f) => 
   }
 }
 
-export const retryTaskItem = (id) => {
+export const retryTaskItem = (id, onSuccess = (f) => f, onFailure = (f) => f) => {
   return dispatch => {
     fetch('/task/' + id, {
       method: 'PUT'
     }).then(res => {
       dispatch(fetchTaskList());
+      if(res.status === 204) {
+        return onSuccess();
+      } else {
+        return res.json().then(info => {
+          onFailure({errMsg: info.errMsg});
+        });
+      }
     }).catch(err => {
+      onFailure({errMsg: err.message});
       console.error(err);
     });
   }
