@@ -1,6 +1,7 @@
 import React from 'react';
 import {Provider} from 'react-redux';
 import store from './store';
+import {view as MessgaeProvider} from './MessageProvider';
 import {view as TaskList} from './TaskList';
 import {view as AddTask} from './AddTask';
 import {view as TaskInfo} from './TaskInfo';
@@ -30,12 +31,14 @@ class App extends React.Component {
       <Provider store={store}>
       <Router>
         <div className="App">
-          <Switch>
+        <MessgaeProvider time={4000}>
+        <Switch>
           <Route exact path="/" component={Index} />
           <Route exact path="/info/:id" component={Info} />
           <Route exact path="/preview/:id" component={Preview} />
           <Route component={Index} />
-          </Switch>
+        </Switch>
+        </MessgaeProvider>
         </div>
       </Router>
       </Provider>
