@@ -1,4 +1,4 @@
-import {FETCH_STARTED, FETCH_SUCCESS, FETCH_FAILURE} from './actionTypes';
+import {FETCH_STARTED, FETCH_SUCCESS, FETCH_FAILURE, CLEAN_TASKINFO} from './actionTypes';
 
 const fetchTaskFilesStarted = () => ({
   type: FETCH_STARTED
@@ -40,3 +40,7 @@ export const fetchTaskFilesInfo = (id) => {
     });
   }
 }
+
+export const cleanTaskInfo = () => ({
+  type: CLEAN_TASKINFO
+});

@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {fetchTaskInfo} from './actions';
+import {fetchTaskInfo, cleanTaskInfo} from './actions';
 import {actions as messageActions} from '../MessageProvider';
 import './style.css';
 
@@ -32,6 +32,10 @@ class TaskInfo extends React.Component {
   componentDidMount() {
     this.props.fetchTaskInfo(this.props.id);
   }
+
+  componentWillUnmount() {
+    this.props.cleanTaskInfo();
+  }
 }
 
 const mapStateToProps = state => ({
@@ -40,6 +44,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchTaskInfo: infoUrl => dispatch(fetchTaskInfo(infoUrl)),
+  cleanTaskInfo: () => dispatch(cleanTaskInfo()),
   displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
 

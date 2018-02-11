@@ -1,6 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {fetchTaskFilesInfo} from './actions';
+import {fetchTaskFilesInfo, cleanTaskInfo} from './actions';
 import {actions as messageActions} from '../MessageProvider';
 import './style.css';
 
@@ -65,6 +65,10 @@ class TaskPreview extends React.Component {
   componentDidMount() {
     this.props.fetchTaskFilesInfo(this.props.id);
   }
+
+  componentWillUnmount() {
+    this.props.cleanTaskInfo();
+  }
 }
 
 const mapStateToProps = state => ({
@@ -73,6 +77,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch => ({
   fetchTaskFilesInfo: (id) => dispatch(fetchTaskFilesInfo(id)),
+  cleanTaskInfo: () => dispatch(cleanTaskInfo()),
   displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
 
