@@ -9,10 +9,10 @@ const fetchTaskInfoSuccess = (info) => ({
   info: info
 });
 
-const fetchTaskInfoFailure = () => ({
+const fetchTaskInfoFailure = (errMsg) => ({
   type: FETCH_FAILURE,
   info: {
-    errMsg: '获取详情失败'
+    errMsg: errMsg || '获取详情失败'
   }
 });
 
@@ -22,18 +22,16 @@ export const fetchTaskInfo = (id) => {
     let fetchURL = isiE ? `/task/${id}/info?${+new Date()}` : `/task/${id}/info`;
     dispatch(fetchTaskInfoStarted());
     fetch(fetchURL).then(res => {
-      if (res.status !== 200) {
-        return dispatch(fetchTaskInfoFailure());
-      }
-      res.json().then(info => {
-        dispatch(fetchTaskInfoSuccess(info));
-      }).catch(err => {
-        console.error(err);
-        dispatch(fetchTaskInfoFailure());
+      return res.json().then(info => {
+        if(info.errMsg) {
+          dispatch(fetchTaskInfoFailure(info.errMsg));
+        } else {
+          dispatch(fetchTaskInfoSuccess(info));
+        }
       });
     }).catch(err => {
       console.error(err);
-      dispatch(fetchTaskInfoFailure());
+      dispatch(fetchTaskInfoFailure(err.message));
     });
   }
 }

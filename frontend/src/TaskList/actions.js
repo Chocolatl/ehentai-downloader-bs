@@ -22,11 +22,8 @@ export const fetchTaskList = () => {
       if (res.status !== 200) {
         return dispatch(fetchTaskListFailure());
       }
-      res.json().then(list => {
+      return res.json().then(list => {
         dispatch(fetchTaskListSuccess(list));
-      }).catch(err => {
-        console.error(err);
-        dispatch(fetchTaskListFailure());
       });
     }).catch(err => {
       console.error(err);
