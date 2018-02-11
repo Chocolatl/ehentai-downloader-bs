@@ -1,11 +1,15 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {fetchTaskList} from '../actions';
+import {actions as messageActions} from '../../MessageProvider';
 import TaskItem from './TaskItem';
 import '../style.css';
 
 class TaskList extends React.Component {
   render() {
+    if(this.props.errMsg) {
+      this.props.displayMessage(this.props.errMsg);
+    }
     return (
       <ul className="task-list">
         {
@@ -39,7 +43,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchTaskList: () => dispatch(fetchTaskList())
+  fetchTaskList: () => dispatch(fetchTaskList()),
+  displayMessage: (text) => dispatch(messageActions.displayMessage(text))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaskList);
