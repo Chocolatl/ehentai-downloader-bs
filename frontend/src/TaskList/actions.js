@@ -9,8 +9,9 @@ const fetchTaskListSuccess = (list) => ({
   list: list
 });
 
-const fetchTaskListFailure = () => ({
-  type: FETCH_FAILURE
+const fetchTaskListFailure = (errMsg) => ({
+  type: FETCH_FAILURE,
+  errMsg: errMsg
 });
 
 export const fetchTaskList = () => {
@@ -20,14 +21,14 @@ export const fetchTaskList = () => {
     dispatch(fetchTaskListStarted());
     fetch(fetchURL).then(res => {
       if (res.status !== 200) {
-        return dispatch(fetchTaskListFailure());
+        return dispatch(fetchTaskListFailure(`服务器返回了期望之外的状态码(${res.status})`));
       }
       return res.json().then(list => {
         dispatch(fetchTaskListSuccess(list));
       });
     }).catch(err => {
       console.error(err);
-      dispatch(fetchTaskListFailure());
+      dispatch(fetchTaskListFailure(err.message));
     });
   }
 }

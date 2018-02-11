@@ -34,7 +34,8 @@ class TaskList extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  list: state.taskList
+  list: state.taskList.list,
+  errMsg: state.taskList.errMsg
 });
 
 const mapDispatchToProps = dispatch => ({
