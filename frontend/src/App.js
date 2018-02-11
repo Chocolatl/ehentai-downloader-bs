@@ -31,7 +31,7 @@ class App extends React.Component {
       <Provider store={store}>
       <Router>
         <div className="App">
-        <MessgaeProvider time={4000}>
+        <MessgaeProvider time={3000}>
         <Switch>
           <Route exact path="/" component={Index} />
           <Route exact path="/info/:id" component={Info} />
