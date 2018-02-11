@@ -1,6 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
-import {actions} from '../TaskList'
+import {actions as taskActions} from '../TaskList';
+import {actions as messageActions} from '../MessageProvider';
 import './style.css';
 
 class AddTask extends React.Component {
@@ -32,13 +33,14 @@ class AddTask extends React.Component {
       this.props.addTaskItem(url);
       this.taskInput.value = '';
     } else {
-      alert('请键入以下形式的URL: \r\nhttps://e-hentai.org/g/1177637/06dd559f50\r\nhttps://exhentai.org/g/1177637/06dd559f50');
+      this.props.displayMessage('请键入以下形式的URL: \r\nhttps://e-hentai.org/g/1177637/06dd559f50\r\nhttps://exhentai.org/g/1177637/06dd559f50');
     }
   }
 }
 
 const mapDispatchToProps = (dispatch) => ({
-  addTaskItem: (url) => dispatch(actions.addTaskItem(url))
+  addTaskItem: (url) => dispatch(taskActions.addTaskItem(url)),
+  displayMessage: (text) => dispatch(messageActions.displayMessage(text))
 });
 
 export default connect(null, mapDispatchToProps)(AddTask);
