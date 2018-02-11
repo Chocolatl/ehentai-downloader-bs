@@ -33,7 +33,7 @@ export const fetchTaskList = () => {
   }
 }
 
-export const addTaskItem = (url) => {
+export const addTaskItem = (url, onSuccess = (f) => f, onFailure = (f) => f) => {
   return dispatch => {
     fetch('/task', {
       method: 'POST',
@@ -44,8 +44,18 @@ export const addTaskItem = (url) => {
         url: url
       })
     }).then(res => {
-      dispatch(fetchTaskList());
+      dispatch(fetchTaskList());        
+      if(res.status === 201) {
+        return res.json().then(info => {
+          onSuccess({id: info.id});
+        });
+      } else {
+        return res.json().then(info => {
+          onFailure({errMsg: info.errMsg});
+        });
+      }
     }).catch(err => {
+      onFailure({errMsg: err.message})
       console.error(err);
     });
   }
