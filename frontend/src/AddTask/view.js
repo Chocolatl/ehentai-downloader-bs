@@ -29,7 +29,7 @@ class AddTask extends React.Component {
   onSubmit(ev) {
     ev.preventDefault();
     let url = this.taskInput.value.trim();
-    if(/https?:\/\/e(-|x)hentai.org\/g/.test(url)) {
+    if(/^https?:\/\/e(-|x)hentai.org\/g[\/0-9a-zA-Z]+$/.test(url)) {
       this.props.addTaskItem(url,
         (info) => this.props.displayMessage('任务创建成功'),
         (info) => this.props.displayMessage(info.errMsg)
