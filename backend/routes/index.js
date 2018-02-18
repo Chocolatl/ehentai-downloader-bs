@@ -61,7 +61,7 @@ router.get('/tasks/list', function(req, res, next) {
 router.get('/task/:taskid/info', function(req, res, next) {
   let taskInfo = req.taskInfo;
   let files = Object.entries(taskInfo.files)
-    .map(([index, fileName]) => ({index: +index, fileName}))
+    .map(([index, {fileName, width, height}]) => ({index: +index, fileName, width, height}))
     .sort(({index: i1}, {index: i2}) => i1 - i2);
   return res.json(Object.assign(_.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']), {files}));
 });
@@ -80,7 +80,7 @@ router.get('/task/:taskid/preview/:index', function(req, res, next) {
   let taskInfo = req.taskInfo;
   let index = req.params.index;
   let thumb = req.query.thumb;
-  let fileName = taskInfo.files[+index];
+  let fileName = taskInfo.files[+index].fileName;
   if(fileName === undefined) {
     return res.status(404).end();
   } else {

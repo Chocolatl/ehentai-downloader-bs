@@ -92,14 +92,18 @@ function logDownloadProcess(ev, logArr) {
 
 function handleDownloadedFiles(ev, {files, dirPath: imageDirPath, thumbPath: thumbDirPath}) {
   ev.on('download', info => {
-    let imageFilePath = path.join(imageDirPath, info.fileName);
-    let thumbFilePath = path.join(thumbDirPath, info.fileName);
+    let width, height;
+    let fileName = info.fileName;
+    let imageFilePath = path.join(imageDirPath, fileName);
+    let thumbFilePath = path.join(thumbDirPath, fileName);
     Jimp.read(imageFilePath).then(function(image) {
+      width = image.bitmap.width;
+      height = image.bitmap.height;
       return image.resize(160, Jimp.AUTO).quality(60).write(thumbFilePath);
     }).catch(function(err) {
         console.error(err);
     }).then(function() {
-      files[info.index] = info.fileName; // 记录到taskInfo.files
+      files[info.index] = {width, height, fileName};  // 记录到taskInfo.files
     });
   });
 }
