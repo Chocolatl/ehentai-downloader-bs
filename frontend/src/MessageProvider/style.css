@@ -8,6 +8,7 @@
   position: fixed;
   left: 50%;
   bottom: -9999px;
+  z-index: 99999;
   transform: translateX(-50%);
   width: 90%;
   max-width: 640px;
