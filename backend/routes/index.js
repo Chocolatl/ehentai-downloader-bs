@@ -79,11 +79,12 @@ router.get('/task/:taskid/download', function(req, res, next) {
 router.get('/task/:taskid/preview/:index', function(req, res, next) {
   let taskInfo = req.taskInfo;
   let index = req.params.index;
+  let thumb = req.query.thumb;
   let fileName = taskInfo.files[+index];
   if(fileName === undefined) {
     return res.status(404).end();
   } else {
-    let filePath = path.join(taskInfo.dirPath, fileName);
+    let filePath = thumb ? path.join(taskInfo.thumbPath, fileName) : path.join(taskInfo.dirPath, fileName);
     fs.existsSync(filePath) ? res.sendFile(filePath) : res.status(404).end();
   }
 });
