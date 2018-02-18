@@ -1,0 +1,10 @@
+.task-preview header {
+  margin-bottom: 20px;
+}
+
+.task-preview .title {
+  font-size: 16px;
+  margin: 20px 0;
+  font-weight: normal;
+  text-align: center;
+}

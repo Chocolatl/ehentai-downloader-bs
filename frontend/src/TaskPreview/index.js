@@ -1,4 +1,4 @@
-import view from './view';
+import view from './views/TaskPreview';
 import reducer from './reducer';
 import * as actions from './actions';
 
