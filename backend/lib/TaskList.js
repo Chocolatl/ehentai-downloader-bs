@@ -1,6 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const nanoid = require('nanoid/generate');
+const Jimp = require('jimp');
 const _ = require('lodash');
 const downloadGallery = require('ehentai-downloader')();
 
@@ -17,17 +18,20 @@ class TaskList {
 
   add(galleryUrl) {
     let id = nanoid('0123456789ABCDEFGHXYZ', 8);
+    let outerPath = path.join(this.STORE_DIR_PATH, id);
     let taskInfo = {
       id        : id,
       state     : undefined,
       gurl      : galleryUrl,
-      outerPath : path.join(this.STORE_DIR_PATH, id),
+      outerPath : outerPath,
+      thumbPath : path.join(outerPath, 'thumbnails'),
       dirPath   : undefined,
       title     : undefined,
       files     : {},
       logs      : []
     }
     fs.mkdirSync(taskInfo.outerPath);
+    fs.mkdirSync(taskInfo.thumbPath);
     this.taskList.unshift(taskInfo);
     return {
       taskInfo: taskInfo,
@@ -86,9 +90,17 @@ function logDownloadProcess(ev, logArr) {
   });
 }
 
-function logDownloadedFiles(ev, filesObj) {
+function handleDownloadedFiles(ev, {files, dirPath: imageDirPath, thumbPath: thumbDirPath}) {
   ev.on('download', info => {
-    filesObj[info.index] = info.fileName;
+    let imageFilePath = path.join(imageDirPath, info.fileName);
+    let thumbFilePath = path.join(thumbDirPath, info.fileName);
+    Jimp.read(imageFilePath).then(function(image) {
+      return image.resize(160, Jimp.AUTO).quality(60).write(thumbFilePath);
+    }).catch(function(err) {
+        console.error(err);
+    }).then(function() {
+      files[info.index] = info.fileName; // 记录到taskInfo.files
+    });
   });
 }
 
@@ -99,7 +111,7 @@ function downloadTask(taskInfo) {
     taskInfo.dirPath = ev.dirPath;
     taskInfo.state   = 'downloading';
     logDownloadProcess(ev, taskInfo.logs);
-    logDownloadedFiles(ev, taskInfo.files);
+    handleDownloadedFiles(ev, taskInfo);
 
     // 这个Promise用于保证触发done事件后再进行下一步
     return new Promise(resolve => ev.on('done', resolve));
