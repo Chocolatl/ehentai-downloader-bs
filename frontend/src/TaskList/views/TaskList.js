@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {fetchTaskList} from '../actions';
 import {actions as messageActions} from '../../MessageProvider';
 import TaskItem from './TaskItem';
-import '../style.css';
+import './style.css';
 
 class TaskList extends React.Component {
   render() {
