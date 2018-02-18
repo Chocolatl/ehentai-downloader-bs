@@ -99,7 +99,7 @@ function handleDownloadedFiles(ev, {files, dirPath: imageDirPath, thumbPath: thu
     Jimp.read(imageFilePath).then(function(image) {
       width = image.bitmap.width;
       height = image.bitmap.height;
-      return image.resize(160, Jimp.AUTO).quality(60).write(thumbFilePath);
+      return image.resize(160, Jimp.AUTO).quality(80).write(thumbFilePath);
     }).catch(function(err) {
         console.error(err);
     }).then(function() {
