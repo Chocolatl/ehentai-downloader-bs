@@ -8,3 +8,55 @@
   font-weight: normal;
   text-align: center;
 }
+
+.task-preview .view-area {
+  margin: 0 auto;
+  max-width: 960px;
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+}
+
+.task-preview .thumb {
+  margin: 1px;
+  position: relative;
+  box-sizing: border-box;
+  float: left;
+  width: 120px;
+  overflow: hidden;
+  flex-grow: 1;
+  cursor: pointer;
+  transition: .2s;
+}
+
+.task-preview .thumb:hover {
+  opacity: .85;
+}
+
+@media (max-width: 380px) {
+  .task-preview .thumb {
+    width: 110px;
+  }
+}
+
+@media (min-width: 960px) {
+  .task-preview .thumb {
+    width: 140px;
+  }
+}
+
+.task-preview .thumb.empty {
+  height: 0;
+}
+
+.task-preview .thumb:before {
+	content: "";
+	display: block;
+	padding-top: 100%;
+}
+
+.task-preview .thumb > img {
+  position: absolute;
+  left: 0;
+  top: 0;
+}

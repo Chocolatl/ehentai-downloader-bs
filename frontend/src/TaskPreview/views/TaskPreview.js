@@ -45,14 +45,25 @@ class TaskPreview extends React.Component {
         <div className="view-area">
           {
             files.map(({index, fileName}, arrIndex) => (
-              <img
-                key={index}
-                src={`/task/${id}/preview/${index}?thumb=yes`}
-                alt={fileName}
-                onClick={() => this.open(arrIndex)}
-              />
+              <div key={index} className="thumb">
+                <img
+                  src={`/task/${id}/preview/${index}?thumb=yes`}
+                  alt={fileName}
+                  onClick={() => this.open(arrIndex)}
+                />
+              </div>
             ))
           }
+          {/* 用来对齐flex最后一行的空元素 */}
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
+          <div className="thumb empty"></div>
         </div>
         <PhotoSwipeComponent pswpRef={this.pswp} />
       </div>
