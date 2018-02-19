@@ -1,17 +1,14 @@
 import React from 'react';
 import {connect} from 'react-redux';
+import {withRouter, Link} from 'react-router-dom';
 import {fetchTaskFilesInfo, cleanTaskInfo} from '../actions';
 import {actions as messageActions} from '../../MessageProvider';
-import PhotoSwipe from 'photoswipe/dist/photoswipe.js';
-import PhotoSwipeUI_Default from 'photoswipe/dist/photoswipe-ui-default.js';
 import PhotoSwipeComponent from './PhotoSwipe';
 import './style.css';
 
 class TaskPreview extends React.Component {
   constructor() {
     super(...arguments);
-    this.pswp = this.pswp.bind(this);
-    this.open = this.open.bind(this);
     this.firstPrompt = true;
   }
 
@@ -37,6 +34,15 @@ class TaskPreview extends React.Component {
       this.props.displayMessage('当前任务没有完成下载，仅可以预览部分图片');
     }
 
+    let items = this.props.info.files.map(file => ({
+      src: `/task/${this.props.info.id}/preview/${file.index}`,
+      title: `${this.props.info.title}[${file.fileName}]`,
+      w: file.width,
+      h: file.height
+    }));
+
+    let matchedURL = this.props.match.url;
+
     return (
       <div className="task-preview">
         <header>
@@ -46,11 +52,12 @@ class TaskPreview extends React.Component {
           {
             files.map(({index, fileName}, arrIndex) => (
               <div key={index} className="thumb">
+                <Link to={matchedURL + (/\/$/.test(matchedURL) ? '' : '/') + arrIndex}>
                 <img
                   src={`/task/${id}/preview/${index}?thumb=yes`}
                   alt={fileName}
-                  onClick={() => this.open(arrIndex)}
                 />
+                </Link>
               </div>
             ))
           }
@@ -65,41 +72,9 @@ class TaskPreview extends React.Component {
           <div className="thumb empty"></div>
           <div className="thumb empty"></div>
         </div>
-        <PhotoSwipeComponent pswpRef={this.pswp} />
+        <PhotoSwipeComponent items={items} match={this.props.match} />
       </div>
     )
-  }
-
-  pswp(node) {
-
-    // 貌似是在卸载组件的时候，ref的回调函数还会被调用，传递了一个null进来...无语
-    if(node == null) {
-      return;
-    }
-
-    this.pswp = node;
-  }
-
-  open(index) {
-    let items = this.props.info.files.map(file => ({
-      src: `/task/${this.props.info.id}/preview/${file.index}`,
-      title: `${this.props.info.title}[${file.fileName}]`,
-      w: file.width,
-      h: file.height
-    }));
-
-    let options = {
-      history: false,
-      focus: false,
-      showAnimationDuration: 600,
-      hideAnimationDuration: 200,
-      shareEl: false,
-      zoomEl: false,
-      index: index
-    };
-
-    let gallery = new PhotoSwipe(this.pswp, PhotoSwipeUI_Default, items, options);    
-    gallery.init();
   }
 
   componentDidMount() {
@@ -121,4 +96,4 @@ const mapDispatchToProps = dispatch => ({
   displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(TaskPreview);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TaskPreview));

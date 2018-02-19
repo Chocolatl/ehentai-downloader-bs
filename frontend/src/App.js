@@ -35,7 +35,7 @@ class App extends React.Component {
         <Switch>
           <Route exact path="/" component={Index} />
           <Route exact path="/info/:id" component={Info} />
-          <Route exact path="/preview/:id" component={Preview} />
+          <Route path="/preview/:id" component={Preview} />
           <Route component={Index} />
         </Switch>
         </MessgaeProvider>
