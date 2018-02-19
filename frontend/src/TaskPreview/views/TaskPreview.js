@@ -56,6 +56,7 @@ class TaskPreview extends React.Component {
                 <img
                   src={`/task/${id}/preview/${index}?thumb=yes`}
                   alt={fileName}
+                  onLoad={this.onImageLoad}
                 />
                 </Link>
               </div>
@@ -75,6 +76,10 @@ class TaskPreview extends React.Component {
         <PhotoSwipeComponent items={items} match={this.props.match} />
       </div>
     )
+  }
+
+  onImageLoad(ev) {
+    ev.target.classList.add('load');
   }
 
   componentDidMount() {
