@@ -59,4 +59,9 @@
   position: absolute;
   left: 0;
   top: 0;
+
+  /* 使图片具有类似 background: center cover; 的效果 */
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
 }
