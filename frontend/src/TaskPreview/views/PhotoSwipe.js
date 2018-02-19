@@ -102,8 +102,11 @@ class PhotoSwipeContainer extends React.Component{
       focus: false,
       showAnimationDuration: 600,
       hideAnimationDuration: 200,
-      shareEl: false,
+      shareEl: true,
       zoomEl: false,
+      shareButtons: [
+        {id: 'download', label: 'Download image', url: '{{raw_image_url}}', download: true}
+      ],
       index: index
     };
 
