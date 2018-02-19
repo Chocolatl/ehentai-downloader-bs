@@ -71,7 +71,6 @@ class TaskPreview extends React.Component {
           <div className="thumb empty"></div>
           <div className="thumb empty"></div>
           <div className="thumb empty"></div>
-          <div className="thumb empty"></div>
         </div>
         <PhotoSwipeComponent items={items} match={this.props.match} />
       </div>
