@@ -17,26 +17,26 @@ class TaskPreview extends React.Component {
       return null;
     }
 
-    if(this.props.info.errMsg) {
-      this.props.displayMessage(this.props.info.errMsg);
+    let info = this.props.info;
+
+    if(info.errMsg) {
+      this.props.displayMessage(info.errMsg);
       return null;
     }
 
-    let {id, title, state, files} = this.props.info;
-
-    if(files.length === 0) {
+    if(info.files.length === 0) {
       this.props.displayMessage('没有可以加载的东西');
       return null;
     }
 
-    if(this.firstPrompt && state !== 'success') {
+    if(this.firstPrompt && info.state !== 'success') {
       this.firstPrompt = false;
       this.props.displayMessage('当前任务没有完成下载，仅可以预览部分图片');
     }
 
-    let items = this.props.info.files.map(file => ({
-      src: `/task/${this.props.info.id}/preview/${file.index}`,
-      title: `${this.props.info.title}[${file.fileName}]`,
+    let items = info.files.map(file => ({
+      src: `/task/${info.id}/preview/${file.index}`,
+      title: `${info.title}[${file.fileName}]`,
       w: file.width,
       h: file.height
     }));
@@ -46,15 +46,15 @@ class TaskPreview extends React.Component {
     return (
       <div className="task-preview">
         <header>
-          <h2 className="title">{title}</h2>
+          <h2 className="title">{info.title}</h2>
         </header>
         <div className="view-area">
           {
-            files.map(({index, fileName}, arrIndex) => (
+            info.files.map(({index, fileName}, arrIndex) => (
               <div key={index} className="thumb">
                 <Link to={matchedURL + (/\/$/.test(matchedURL) ? '' : '/') + arrIndex}>
                 <img
-                  src={`/task/${id}/preview/${index}?thumb=yes`}
+                  src={`/task/${info.id}/preview/${index}?thumb=yes`}
                   alt={fileName}
                   onLoad={this.onImageLoad}
                 />
