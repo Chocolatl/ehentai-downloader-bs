@@ -102,6 +102,7 @@ class PhotoSwipeContainer extends React.Component{
       focus: false,
       showAnimationDuration: 600,
       hideAnimationDuration: 200,
+      closeOnScroll: false,
       shareEl: true,
       zoomEl: false,
       shareButtons: [
