@@ -66,12 +66,16 @@
   height: 100%;
 }
 
-/* 缩略图加载后渐现 */
+/* 缩略图加载后渐现 & hover时放大 */
 .task-preview .thumb img {
   opacity: 0;
-  transition: opacity .4s ease-out;
+  transition: opacity .4s ease-out, transform .4s ease-out;
 }
 
 .task-preview .thumb img.load {
   opacity: 1;
+}
+
+.task-preview .thumb img:hover {
+  transform: scale(1.125);
 }
