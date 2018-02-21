@@ -84,6 +84,7 @@ router.get('/task/:taskid/preview/:index', function(req, res, next) {
   if(fileName === undefined) {
     return res.status(404).end();
   } else {
+    res.set('Content-Disposition','attachment;filename*=UTF-8\'\'' + encodeURIComponent(fileName));
     let filePath = thumb ? path.join(taskInfo.thumbPath, fileName) : path.join(taskInfo.dirPath, fileName);
     fs.existsSync(filePath) ? res.sendFile(filePath) : res.status(404).end();
   }
