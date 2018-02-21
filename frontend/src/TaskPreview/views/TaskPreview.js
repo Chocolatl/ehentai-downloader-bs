@@ -36,7 +36,7 @@ class TaskPreview extends React.Component {
 
     let items = info.files.map(file => ({
       src: `/task/${info.id}/preview/${file.index}`,
-      title: `${info.title}[${file.fileName}]`,
+      title: file.fileName,
       w: file.width,
       h: file.height
     }));
