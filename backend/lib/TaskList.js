@@ -3,7 +3,11 @@ const path = require('path');
 const nanoid = require('nanoid/generate');
 const Jimp = require('jimp');
 const _ = require('lodash');
-const downloadGallery = require('ehentai-downloader')();
+const downloadGallery = require('ehentai-downloader')({
+  download: {
+    fileName: '{jtitle}[{index.0}]'
+  }
+});
 
 class TaskList {
   constructor(storeDirPath) {
