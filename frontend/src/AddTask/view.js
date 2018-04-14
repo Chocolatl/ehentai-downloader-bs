@@ -29,11 +29,12 @@ class AddTask extends React.Component {
   onSubmit(ev) {
     ev.preventDefault();
     let url = this.taskInput.value.trim();
+    let done = (message) => {
+      this.props.fetchTaskList();
+      this.props.displayMessage(message);
+    };
     if(/^https?:\/\/e(-|x)hentai.org\/g[/0-9a-zA-Z]+$/.test(url)) {
-      this.props.addTaskItem(url,
-        (info) => this.props.displayMessage('任务创建成功'),
-        (info) => this.props.displayMessage(info.errMsg)
-      );
+      this.props.addTaskItem(url, (info) => done('任务创建成功'), (info) => done(info.errMsg));
       this.taskInput.value = '';
     } else {
       this.props.displayMessage('请键入以下形式的URL: \r\nhttps://e-hentai.org/g/1177637/06dd559f50\r\nhttps://exhentai.org/g/1177637/06dd559f50');
@@ -42,6 +43,7 @@ class AddTask extends React.Component {
 }
 
 const mapDispatchToProps = (dispatch) => ({
+  fetchTaskList: () => dispatch(taskActions.fetchTaskList()),
   addTaskItem: (url, onSuccess, onFailure) => dispatch(taskActions.addTaskItem(url, onSuccess, onFailure)),
   displayMessage: (text) => dispatch(messageActions.displayMessage(text))
 });

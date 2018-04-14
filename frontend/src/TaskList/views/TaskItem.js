@@ -1,7 +1,7 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {Link} from 'react-router-dom'
-import {retryTaskItem} from '../actions';
+import {fetchTaskList, retryTaskItem} from '../actions';
 import {actions as messageActions} from '../../MessageProvider';
 
 class TaskItem extends React.Component {
@@ -46,15 +46,17 @@ class TaskItem extends React.Component {
   }
 
   onClickRetry(ev) {
-    this.props.retryTaskItem(this.props.id,
-      () => this.props.displayMessage('任务创建成功'),
-      (info) => this.props.displayMessage(info.errMsg)
-    );
     ev.preventDefault();
+    let done = (messgae) => {
+      this.props.fetchTaskList();
+      this.props.displayMessage(messgae);
+    };
+    this.props.retryTaskItem(this.props.id, () => done('任务创建成功'), (info) => done(info.errMsg));
   }
 }
 
 const mapDispatchToProps = (dispatch) => ({
+  fetchTaskList: () => dispatch(fetchTaskList()),
   retryTaskItem: (id, onSuccess, onFailure) => dispatch(retryTaskItem(id, onSuccess, onFailure)),
   displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
