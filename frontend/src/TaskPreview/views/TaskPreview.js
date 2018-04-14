@@ -1,7 +1,6 @@
 import React from 'react';
 import {connect} from 'react-redux';
 import {withRouter, Link} from 'react-router-dom';
-import {fetchTaskFilesInfo, cleanTaskInfo} from '../actions';
 import {actions as messageActions} from '../../MessageProvider';
 import PhotoSwipeComponent from './PhotoSwipe';
 import './style.css';
@@ -9,16 +8,16 @@ import './style.css';
 class TaskPreview extends React.Component {
   constructor() {
     super(...arguments);
+    this.state = {};
     this.firstPrompt = true;
   }
 
   render() {
-    if(!this.props.info) {
-      return null;
+    if(!this.state.info) {
+      return <div>正在加载...</div>;
     }
 
-    let info = this.props.info;
-
+    let info = this.state.info;
     if(info.errMsg) {
       this.props.displayMessage(info.errMsg);
       return null;
@@ -82,22 +81,18 @@ class TaskPreview extends React.Component {
   }
 
   componentDidMount() {
-    this.props.fetchTaskFilesInfo(this.props.id);
-  }
+    let isiE = navigator.userAgent.indexOf("MSIE ") > -1 || navigator.userAgent.indexOf("Trident/") > -1;
+    let url = `/task/${this.props.id}/info?` + (isiE ? +new Date() : '');
 
-  componentWillUnmount() {
-    this.props.cleanTaskInfo();
+    fetch(url)
+      .then(res => res.json())
+      .then(info => this.setState({info}))
+      .catch(err => this.setState({info: {errMsg: err.errMsg}}));
   }
 }
 
-const mapStateToProps = state => ({
-  info: state.taskPreview
-});
-
 const mapDispatchToProps = dispatch => ({
-  fetchTaskFilesInfo: (id) => dispatch(fetchTaskFilesInfo(id)),
-  cleanTaskInfo: () => dispatch(cleanTaskInfo()),
   displayMessage: text => dispatch(messageActions.displayMessage(text))
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(TaskPreview));
+export default withRouter(connect(null, mapDispatchToProps)(TaskPreview));
