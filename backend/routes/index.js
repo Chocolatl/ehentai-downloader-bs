@@ -4,138 +4,91 @@ const fs = require('fs');
 const path = require('path');
 const archiver = require('archiver');
 const _ = require('lodash');
-const {TaskList, TaskQueue} = require('../lib/TaskList.js');
+const TaskList = require('../lib/TaskList');
+const TaskStates = require('../lib/TaskStates');
 
 function archive(srcDir, destStream) {
-  return new Promise((resolve, reject) => {
-    let archive = archiver('zip', {
-      zlib: {level: 1}
-    });
-    let lastErr = null;
-  
-    destStream.on('close', function() {
-      if(lastErr) {
-        reject();
-      } else {
-        resolve();
-      }
-    });
-  
-    archive.on('warning', function(err) {
-      lastErr = err;
-    });
-  
-    archive.on('error', function(err) {
-      lastErr = err;
-    });
-  
-    archive.pipe(destStream);
-    archive.directory(srcDir, false);
-    archive.finalize();
+  let archive = archiver('zip', {
+    zlib: {level: 1}
   });
+  archive.pipe(destStream);
+  archive.directory(srcDir, false);
+  archive.finalize();
 }
 
+const MAX_QUEUE_LEN = 3;  // 最大同时下载任务数量
 const STORE_PATH = path.resolve(__dirname, '..', 'store');
-fs.existsSync(STORE_PATH) === false && fs.mkdirSync(STORE_PATH);
+const tasks = new TaskList(STORE_PATH);
 
-const taskList = new TaskList(STORE_PATH);
-
+// req.taskInfo
 router.param('taskid', function(req, res, next, taskid) {
-  let taskInfo = taskList.find(taskid);
-  if(!taskInfo) {
-    return res.status(404).json({
-      errMsg: '该任务不存在'
-    });
-  } else {
-    req.taskInfo = taskInfo;
-    next();
-  }
+  req.taskInfo = tasks.find(taskid);
+  if(!req.taskInfo) return res.status(404).json({
+    errMsg: '该任务不存在'
+  });
+  next();
 });
 
+// 获取任务列表
 router.get('/tasks/list', function(req, res, next) {
-  res.json(taskList.all().map(function(taskInfo) {
+  res.json(tasks.all().map(function(taskInfo) {
     return _.pick(taskInfo, ['id', 'state', 'title', 'gurl']);
   }));
 });
 
+// 获取任务详细信息
 router.get('/task/:taskid/info', function(req, res, next) {
   let taskInfo = req.taskInfo;
   let files = Object.entries(taskInfo.files)
     .map(([index, {fileName, width, height}]) => ({index: +index, fileName, width, height}))
     .sort(({index: i1}, {index: i2}) => i1 - i2);
-  return res.json(Object.assign(_.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']), {files}));
+  return res.json({..._.pick(taskInfo, ['id', 'state', 'title', 'gurl', 'logs']), files});
 });
 
+// 下载归档文件
 router.get('/task/:taskid/download', function(req, res, next) {
   let taskInfo = req.taskInfo;
-  if(taskInfo.state !== 'success') {
+  if(taskInfo.state !== TaskStates.SUCCESS) {
     return res.status(404).end();
   } else {
     res.set('Content-Disposition','attachment;filename*=UTF-8\'\'' + encodeURIComponent(taskInfo.title + '.zip'));
-    archive(taskInfo.dirPath, res);
+    archive(taskInfo.imagePath, res);
   }
 });
 
+// 查看单张图片
 router.get('/task/:taskid/preview/:index', function(req, res, next) {
   let taskInfo = req.taskInfo;
   let index = req.params.index;
-  let thumb = req.query.thumb;
+  let thumb = req.query.thumb;  // 存在thumb参数时使用缩略图
   let fileName = taskInfo.files[+index].fileName;
   if(fileName === undefined) {
     return res.status(404).end();
   } else {
     res.set('Content-Disposition','attachment;filename*=UTF-8\'\'' + encodeURIComponent(fileName));
-    let filePath = thumb ? path.join(taskInfo.thumbPath, fileName) : path.join(taskInfo.dirPath, fileName);
+    let filePath = thumb ? path.join(taskInfo.thumbPath, fileName) : path.join(taskInfo.imagePath, fileName);
     fs.existsSync(filePath) ? res.sendFile(filePath) : res.status(404).end();
   }
 });
 
-const MAX_QUEUE_LENGTH = 3;
-const queue = new TaskQueue(MAX_QUEUE_LENGTH);
-
+// 添加任务
 router.post('/task', function(req, res, next) {
-  if(queue.isFull()) {
-    return res.status(403).json({
-      errMsg: '下载队列已满'
-    });
-  } else {
-    queue.enqueue();
-  }
-
-  let newTask = taskList.add(req.body.url);
-  let {taskInfo, donePromise} = newTask;
-  
-  donePromise.then(_ => {
-    queue.dequeue();
+  if(tasks.queueLenth >= MAX_QUEUE_LEN) return res.status(403).json({
+    errMsg: '下载队列已满'
   });
-
   res.status(201).json({
-    id: taskInfo.id
+    id: tasks.add(req.body.url).id
   });
 });
 
-// 下载失败时请求重试的路由
+// 重试失败任务
 router.put('/task/:taskid', function(req, res, next) {
-  let taskInfo = req.taskInfo;
-  if(queue.isFull()) {
-    return res.status(403).json({
-      errMsg: '下载队列已满'
-    });
-  } else {
-    queue.enqueue();
-  }
-
-  let task = taskList.retry(taskInfo.id);
-  if(!task) {
-    return res.status(403).json({
-      errMsg: '该任务不存在'
-    });
-  }
-
-  task.donePromise.then(_ => {
-    queue.dequeue();
+  if(tasks.queueLenth >= MAX_QUEUE_LEN) return res.status(403).json({
+    errMsg: '下载队列已满'
   });
-
+  if(!tasks.retry(req.params.taskid)) return res.status(403).json({
+    errMsg: '该任务不存在或无法重试'
+  });
   res.status(204).end();
 });
 

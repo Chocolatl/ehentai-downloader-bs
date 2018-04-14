@@ -1,8 +1,10 @@
+'use strict';
 const fs = require('fs');
 const path = require('path');
 const nanoid = require('nanoid/generate');
 const Jimp = require('jimp');
 const _ = require('lodash');
+const TaskStates = require('./TaskStates');
 const downloadGallery = require('ehentai-downloader')({
   download: {
     fileName: '{jtitle}[{index.0}]'
@@ -10,169 +12,139 @@ const downloadGallery = require('ehentai-downloader')({
 });
 
 class TaskList {
-  constructor(storeDirPath) {
-    this.STORE_DIR_PATH = storeDirPath;
-    this.TASK_DB_PATH = path.join(this.STORE_DIR_PATH, 'db.json');
-    this.taskList = fs.existsSync(this.TASK_DB_PATH) ? JSON.parse(fs.readFileSync(this.TASK_DB_PATH)) : [];
+  constructor(storePath) {
+    !fs.existsSync(storePath) && fs.mkdirSync(storePath);    
+    this.STORE_PATH  = storePath;
+    this.TASKDB_PATH = path.join(this.STORE_PATH, 'db.json');
+    this.tasks = this.read();
+  }
+
+  read() {
+    return fs.existsSync(this.TASKDB_PATH) ? JSON.parse(fs.readFileSync(this.TASKDB_PATH)) : [];
   }
 
   save() {
-    fs.writeFileSync(this.TASK_DB_PATH, JSON.stringify(this.taskList));  // 保存taskList到文件
+    let tasks = this.tasks.filter(({state}) => state !== TaskStates.WAITING && state !== TaskStates.DOWNLOADING);   // 已完成下载的任务
+    fs.writeFileSync(this.TASKDB_PATH, JSON.stringify(tasks));  // 保存到文件
   }
 
-  add(galleryUrl) {
-    let id = nanoid('0123456789ABCDEFGHXYZ', 8);
-    let outerPath = path.join(this.STORE_DIR_PATH, id);
-    let taskInfo = {
-      id        : id,
-      state     : undefined,
-      gurl      : galleryUrl,
-      outerPath : outerPath,
-      thumbPath : path.join(outerPath, 'thumbnails'),
-      dirPath   : undefined,
-      title     : undefined,
-      files     : {},
-      logs      : []
-    }
-    fs.mkdirSync(taskInfo.outerPath);
-    fs.mkdirSync(taskInfo.thumbPath);
-    this.taskList.unshift(taskInfo);
-    return {
-      taskInfo: taskInfo,
-      donePromise: downloadTask(taskInfo).then(this.save.bind(this))
-    }
-  }
-
-  retry(id) {
-    let taskInfo = this.find(id);
-    if(!taskInfo || taskInfo.state !== 'failure') {
-      return null;
-    }
-    return {
-      taskInfo: taskInfo,
-      donePromise: downloadTask(taskInfo).then(this.save.bind(this))
-    }
+  queueLenth() {
+    let length = 0;
+    this.tasks.forEach(({state}) => {
+      if(state === TaskStates.WAITING || state === TaskStates.DOWNLOADING) {
+        length++;
+      }
+    });
+    return length;
   }
 
   find(id) {
-    let taskInfo = this.taskList.find(e => e.id === id);
+    let taskInfo = this.tasks.find(e => e.id === id);
     return taskInfo;
   }
 
   all() {
-    return this.taskList;
+    return this.tasks;
+  }
+
+  add(galleryUrl) {
+    let id = nanoid('0123456789ABCDEFGHXYZ', 8);
+    let outerPath = path.join(this.STORE_PATH, id);
+    let taskInfo = {
+      id        : id,
+      state     : TaskStates.WAITING,
+      gurl      : galleryUrl,
+      outerPath : outerPath,
+      thumbPath : path.join(outerPath, 'thumbnails'),
+      imagePath : undefined,
+      title     : undefined,
+      files     : {},
+      logs      : []
+    }
+
+    fs.mkdirSync(taskInfo.outerPath);
+    fs.mkdirSync(taskInfo.thumbPath);
+    this.tasks.unshift(taskInfo);
+    return downloadTask(taskInfo, this.save.bind(this));
+  }
+
+  retry(id) {
+    let taskInfo = this.find(id);
+    if(!taskInfo || taskInfo.state !== TaskStates.FAILURE) return null;
+    return downloadTask(taskInfo, this.save.bind(this));
   }
 }
 
-logActions = {
-  download: (index, fileName, event = 'download', date = +new Date()) => ({
-    event, index, fileName, date
+let logActions = {
+  download: ({index, fileName}) => ({
+    date: +new Date(), event: 'download', index, fileName
   }),
-  done: (event = 'done', date = +new Date()) => ({
-    event, date
+  fail: ({message: errMsg}, {index}) => ({
+    date: +new Date(), event: 'fail', index, errMsg
   }),
-  fail: (index, fileName, errMsg, event = 'fail', date = +new Date()) => ({
-    event, index, fileName, errMsg, date
+  error: ({message: errMsg}) => ({
+    date: +new Date(), event: 'error', errMsg
   }),
-  error: (errMsg, event = 'error', date = +new Date()) => ({
-    event, errMsg, date
+  done: () => ({
+    date: +new Date(), event: 'done'
   })
 }
 
 function logDownloadProcess(ev, logArr) {
-  ev.on('download', info => {
-    logArr.push(logActions.download(info.index, info.fileName));
-  });
-  ev.on('done', _ => {
-    logArr.push(logActions.done());
-  });
-  ev.on('fail', (err, info) => {
-    logArr.push(logActions.fail(info.index, info.fileName, err.message));
-  });
-  ev.on('error', err => {
-    logArr.push(logActions.error(err.message));
-  });
+  let actions = _.mapValues(logActions, (f) => (...args) => logArr.push(f(...args)));
+  _.forOwn(actions, (value, key) => ev.on(key, value));
 }
 
-function handleDownloadedFiles(ev, {files, dirPath: imageDirPath, thumbPath: thumbDirPath}) {
-  ev.on('download', info => {
-    let width, height;
-    let fileName = info.fileName;
-    let imageFilePath = path.join(imageDirPath, fileName);
-    let thumbFilePath = path.join(thumbDirPath, fileName);
+function handleDownloadedFiles(ev, {files, imagePath, thumbPath}) {
+  ev.on('download', ({index, fileName}) => {
+    let imageFilePath = path.join(imagePath, fileName);
+    let thumbFilePath = path.join(thumbPath, fileName);
     Jimp.read(imageFilePath).then(function(image) {
-      width = image.bitmap.width;
-      height = image.bitmap.height;
-      return image.resize(160, Jimp.AUTO).quality(80).write(thumbFilePath);
-    }).catch(function(err) {
-        console.error(err);
-    }).then(function() {
-      files[info.index] = {width, height, fileName};  // 记录到taskInfo.files
+      let width  = image.bitmap.width;
+      let height = image.bitmap.height;
+      files[index] = {width, height, fileName};  // 记录到taskInfo.files
+      // BUG：Jimp不支持操作gif格式图片，无法成功制作gif图片的缩略图
+      return image.resize(160, Jimp.AUTO).write(thumbFilePath);
     });
   });
 }
 
-function downloadTask(taskInfo) {
-  taskInfo.state = 'waiting';
-  return downloadGallery(taskInfo.gurl, taskInfo.outerPath).then(ev => {
-    taskInfo.title   = ev.dirName;
-    taskInfo.dirPath = ev.dirPath;
-    taskInfo.state   = 'downloading';
-    logDownloadProcess(ev, taskInfo.logs);
-    handleDownloadedFiles(ev, taskInfo);
+// 根据下载日志确定任务状态
+function getTaskState(taskInfo) {
 
-    // 这个Promise用于保证触发done事件后再进行下一步
-    return new Promise(resolve => ev.on('done', resolve));
-
-  }).then(function() {
-    
     // 因为允许重试，所以日志数组中可能会有多次下载的日志
     // 这里通过'done'事件寻找最后一次下载的下载日志起始位置
     // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
-    let beginIndex = _.findLastIndex(taskInfo.logs, {'event': 'done'}, taskInfo.logs.length - 2) + 1;
-    let lastLogs = taskInfo.logs.slice(beginIndex); // 最后一次下载的日志数组
-    let hasFail = lastLogs.some(log => log.event === 'fail');
-    let hasErr = lastLogs.some(log => log.event === 'error');
+    let beginIndex = _.findLastIndex(taskInfo.logs, {event: 'done'}, taskInfo.logs.length - 2) + 1;
+    let lastLogs   = taskInfo.logs.slice(beginIndex);    // 最后一次下载的日志数组
+    let hasFail    = lastLogs.some(log => log.event === 'fail');
+    let hasErr     = lastLogs.some(log => log.event === 'error');
 
-    if (hasErr) {
-      taskInfo.state = 'error';
-    } else if (hasFail) {
-      taskInfo.state = 'failure';
-    } else {
-      taskInfo.state = 'success';
-    }
-  }).catch(err => {
-    taskInfo.state = 'error';
-    taskInfo.logs.push(logActions.error(err.message));
-  });
+    return (hasErr && TaskStates.ERROR) || (hasFail && TaskStates.FAILURE) || TaskStates.SUCCESS;
 }
 
-function TaskQueue(maxLen) {
-  return {
-    nowLen: 0,
-    maxLen: maxLen,
-    isFull: function() {
-      return this.maxLen === this.nowLen;
-    },
-    isEmpty: function() {
-      return this.nowLen === 0;
-    },
-    enqueue: function() {
-      if(this.isFull()) {
-        throw new Error('Full');
-      }
-      return ++this.nowLen;
-    },
-    dequeue: function() {
-      if(this.isEmpty()) {
-        throw new Error('Empty');
-      }
-      return --this.nowLen;
-    }
-  };
+function downloadTask(taskInfo, cb) {
+
+  function onbegin(ev) {
+    taskInfo.title     = ev.dirName;
+    taskInfo.imagePath = ev.dirPath;
+    taskInfo.state     = TaskStates.DOWNLOADING;
+    logDownloadProcess(ev, taskInfo.logs);
+    handleDownloadedFiles(ev, taskInfo);
+    ev.on('done', () => {
+      taskInfo.state = getTaskState(taskInfo);  // 设置任务状态
+      cb();
+    });
+  }
+
+  function onfail(err) {
+    taskInfo.logs.push(logActions.error(err));
+    taskInfo.state = TaskStates.ERROR;   // 设置任务状态
+    cb(err);
+  }
+  
+  downloadGallery(taskInfo.gurl, taskInfo.outerPath).then(onbegin, onfail);
+  return taskInfo;
 }
 
-module.exports = {
-  TaskList,
-  TaskQueue
-};
+module.exports = TaskList;
