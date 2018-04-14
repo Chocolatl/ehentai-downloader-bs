@@ -52,7 +52,7 @@ class TaskList {
     let outerPath = path.join(this.STORE_PATH, id);
     let taskInfo = {
       id        : id,
-      state     : TaskStates.WAITING,
+      state     : undefined,
       gurl      : galleryUrl,
       outerPath : outerPath,
       thumbPath : path.join(outerPath, 'thumbnails'),
@@ -143,6 +143,7 @@ function downloadTask(taskInfo, cb) {
     cb(err);
   }
   
+  taskInfo.state = TaskStates.WAITING;
   downloadGallery(taskInfo.gurl, taskInfo.outerPath).then(onbegin, onfail);
   return taskInfo;
 }
