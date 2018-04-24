@@ -52,7 +52,7 @@ export const retryTaskItem = (id, onSuccess = doNothing, onFailure = doNothing) 
   }).then(res => {
     if(res.status === 204) return onSuccess();
     if(res.status === 500) throw new Error('服务器错误');
-    res.json().then(info => {
+    return res.json().then(info => {
       throw new Error(info.errMsg);
     });
   }).catch(err => {
