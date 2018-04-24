@@ -69,8 +69,9 @@ class TaskList {
   }
 
   retry(id) {
+    const {FAILURE, ERROR} = TaskStates;
     let taskInfo = this.find(id);
-    if(!taskInfo || taskInfo.state !== TaskStates.FAILURE) return null;
+    if(!taskInfo || (taskInfo.state !== FAILURE && taskInfo.state !== ERROR)) return null;
     return downloadTask(taskInfo, this.save.bind(this));
   }
 }
