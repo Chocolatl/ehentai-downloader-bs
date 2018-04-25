@@ -113,11 +113,16 @@ function handleDownloadedFiles(ev, {files, imagePath, thumbPath}) {
 // 根据下载日志确定任务状态
 function getTaskState(taskInfo) {
 
-    // 因为允许重试，所以日志数组中可能会有多次下载的日志
-    // 这里通过'done'事件寻找最后一次下载的下载日志起始位置
-    // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
-    let beginIndex = _.findLastIndex(taskInfo.logs, {event: 'done'}, taskInfo.logs.length - 2) + 1;
-    let lastLogs   = taskInfo.logs.slice(beginIndex);    // 最后一次下载的日志数组
+  if(_.last(taskInfo.logs).event === 'error') {
+    return TaskStates.ERROR;
+  }
+
+  // 因为允许重试，所以日志数组中可能会有多次下载的日志
+  // 这里通过'done'事件寻找最后一次下载的下载日志起始位置
+  // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
+    let logs = taskInfo.logs;
+    let beginIndex = _.findLastIndex(logs, {event: 'done'}, logs.length - 2) + 1;
+    let lastLogs   = logs.slice(beginIndex);    // 最后一次下载的日志数组
     let hasFail    = lastLogs.some(log => log.event === 'fail');
     let hasErr     = lastLogs.some(log => log.event === 'error');
 
