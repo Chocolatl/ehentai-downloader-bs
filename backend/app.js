@@ -6,6 +6,7 @@ const logger = require('morgan');
 const bodyParser = require('body-parser');
 const compression = require('compression');
 const index = require('./routes/index');
+const eh = require('./routes/eh');
 const app = express();
 
 const staticPath = path.join(__dirname, 'public');
@@ -18,6 +19,7 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(compression({level: 1}));
 app.use(express.static(staticPath));
 app.use('/', index);
+app.use('/eh', eh);
 
 // 没有匹配到路由则渲染主页
 app.use(function(req, res, next) {
