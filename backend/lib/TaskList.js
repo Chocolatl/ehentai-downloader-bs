@@ -112,11 +112,7 @@ function handleDownloadedFiles(ev, {files, imagePath, thumbPath}) {
 
 // 根据下载日志确定任务状态
 function getTaskState(taskInfo) {
-
-  if(_.last(taskInfo.logs).event === 'error') {
-    return TaskStates.ERROR;
-  }
-
+  
   // 因为允许重试，所以日志数组中可能会有多次下载的日志
   // 这里通过'done'事件寻找最后一次下载的下载日志起始位置
   // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
@@ -145,6 +141,7 @@ function downloadTask(taskInfo, cb) {
 
   function onfail(err) {
     taskInfo.logs.push(logActions.error(err));
+    taskInfo.logs.push(logActions.done());
     taskInfo.state = TaskStates.ERROR;   // 设置任务状态
     cb(err);
   }
