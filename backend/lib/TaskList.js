@@ -4,12 +4,11 @@ const path = require('path');
 const nanoid = require('nanoid/generate');
 const Jimp = require('jimp');
 const _ = require('lodash');
+const yaml = require('js-yaml');
+const CONFIG_FILE = require('path').normalize(`${__dirname}/../config.yml`);
+const USER_CONFIG = yaml.load(fs.readFileSync(CONFIG_FILE, 'utf8'));
+const downloadGallery = require('ehentai-downloader')(USER_CONFIG);
 const TaskStates = require('./TaskStates');
-const downloadGallery = require('ehentai-downloader')({
-  download: {
-    fileName: '{jtitle}[{index.0}]'
-  }
-});
 
 class TaskList {
   constructor(storePath) {

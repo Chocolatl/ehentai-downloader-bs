@@ -1,0 +1,74 @@
+download:
+
+  # 同时下载的图片数量
+  # 建议根据网络情况设置为 3-5 之间
+  threads: 3
+
+  # 该选项暂不可用
+  # 网页/图片下载失败后的重试次数
+  # 重试可能会消耗配额，建议设置为 1
+  retries: 1
+
+  # 在retries指定的重试次数消耗完后图片仍然下载失败的情况下
+  # 尝试使用 'Click here if the image fails loading' 链接重试
+  # 使用这种方法重试会消耗较多的配额
+  nlretry: true
+
+  # 原图存在时是否下载原图
+  # 下载原图会消耗大量配额，默认为 false
+  # 该选项仅在登录账号后可以设置为 true ，否则程序会发出警告并直接退出
+  original: false
+
+  # 是否使用日文标题创建文件夹，为 false 时使用主标题
+  # 有些非法字符会被过滤，所以创建的文件夹标题未必和网页上的一致
+  jtitle: true
+
+  # 保存图片的命名规则
+  # ----
+  # 有一些可用变量
+  #   {jtitle}    - 画廊日文标题，不存在时自动使用 ntitle
+  #   {ntitle}    - 画廊英文标题
+  #   {filename}  - 图片原文件名
+  #   {index.0}   - 按图片在画廊中出现的顺序，从 0 开始的序号
+  #   {index.0.4} - 同上，但会填充前导 0 使序号长度固定为 4
+  #   {index.1}   - 按图片在画廊中出现的顺序，从 1 开始的序号
+  #   {index.1.4} - 同上，但会填充前导 0 使序号长度固定为 4
+  # ----
+  # 有些非法字符会被过滤，所以创建的文件名未必和指定的完全一致
+  fileName: "{jtitle}[{index.0}]"
+
+  # 是否保存图片下载进度记录
+  # 为 true 时，会在下载目录中创建 download.json 保存进度记录，记录下载成功、未下载、下载失败的项
+  # 如果由于下载时进程中断导致存在未下载的项，或由于网络等因素导致存在下载失败的项
+  # 那么下次在同一目录重新下载该Gallery时，会读取 download.json 并根据上次的进度记录继续下载
+  # 如果下载成功完成，download.json 文件会被自动删除
+  downloadLog: true
+
+  # 如果存在代理，可以在下面填入代理地址，目前仅支持SOCKS(5)代理
+  # 这是一个使用ShadowSocks的填写示例："socks5://127.0.0.1:1080"
+  # 在填写代理地址后，可以设置 proxyHTML 和 proxyFile 来指定需要通过代理的内容
+  proxy: ""
+
+  # 解析网页时是否通过代理
+  # 设置为 true 前必须正确设置 proxy 的值
+  proxyHTML: false
+
+  # 下载文件时是否通过代理
+  # 设置为 true 前必须正确设置 proxy 的值
+  proxyFile: false
+
+  # 用户代理字符串
+  userAgent: "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.75 Safari/537.36"
+
+login:
+
+  # 在浏览器成功登录E站后获取以下三个cookie的值并填入下方
+  # 当以下三个字段都不为空时会自动登录并验证是否登录成功
+  # 如果登录验证失败会发出警告并直接退出程序
+  __cfduid: ""
+  ipb_member_id: ""
+  ipb_pass_hash: ""
+
+  # 在浏览器成功登录里站(exhentai)后，获取以下cookie的值并填入下方
+  # 如果仅是登录下载表站(e-hentai)的Gallery，可以不填写下面的字段
+  igneous: ""
