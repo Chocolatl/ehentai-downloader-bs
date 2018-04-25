@@ -73,7 +73,7 @@ router.get('/task/:taskid/preview/:index', function(req, res, next) {
 
 // 添加任务
 router.post('/task', function(req, res, next) {
-  if(tasks.queueLenth >= MAX_QUEUE_LEN) return res.status(403).json({
+  if(tasks.getQueueLenth() >= MAX_QUEUE_LEN) return res.status(403).json({
     errMsg: '下载队列已满'
   });
   res.status(201).json({
@@ -83,7 +83,7 @@ router.post('/task', function(req, res, next) {
 
 // 重试失败任务
 router.put('/task/:taskid', function(req, res, next) {
-  if(tasks.queueLenth >= MAX_QUEUE_LEN) return res.status(403).json({
+  if(tasks.getQueueLenth() >= MAX_QUEUE_LEN) return res.status(403).json({
     errMsg: '下载队列已满'
   });
   if(!tasks.retry(req.params.taskid)) return res.status(403).json({

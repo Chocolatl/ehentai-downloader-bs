@@ -27,7 +27,7 @@ class TaskList {
     fs.writeFileSync(this.TASKDB_PATH, JSON.stringify(tasks));  // 保存到文件
   }
 
-  queueLenth() {
+  getQueueLenth() {
     let length = 0;
     this.tasks.forEach(({state}) => {
       if(state === TaskStates.WAITING || state === TaskStates.DOWNLOADING) {
@@ -111,7 +111,7 @@ function handleDownloadedFiles(ev, {files, imagePath, thumbPath}) {
 
 // 根据下载日志确定任务状态
 function getTaskState(taskInfo) {
-  
+
   // 因为允许重试，所以日志数组中可能会有多次下载的日志
   // 这里通过'done'事件寻找最后一次下载的下载日志起始位置
   // taskInfo.logs.length - 2 用来跳过这一次下载的'done'
