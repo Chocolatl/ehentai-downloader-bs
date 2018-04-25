@@ -1,30 +1,83 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {fetchTaskList} from '../actions';
-import {actions as messageActions} from '../../MessageProvider';
+import { connect } from 'react-redux';
+import { fetchTaskList } from '../actions';
 import TaskItem from './TaskItem';
-import './style.css';
+import { withRouter } from 'react-router-dom';
+import { withStyles } from 'material-ui/styles';
 
-class TaskList extends React.Component {
+import Snackbar from 'material-ui/Snackbar';
+import Typography from 'material-ui/Typography';
+import AppBar from 'material-ui/AppBar';
+import Toolbar from 'material-ui/Toolbar';
+
+import GalleryList from '../../GalleryList/GalleryList';
+
+const styles = theme => ({
+  root: {
+    display: 'flex',
+    flexDirection: 'column'
+  },
+  title: {
+  },
+  taskList: {
+    flexGrow: 1,
+    overflowY: 'auto'
+  }
+});
+
+const TaskList = withStyles(styles)(withRouter(class extends React.Component {
+  state = {
+    snackOpen: false,
+    snackMsg: ''
+  };
+
+  componentWillReceiveProps(nextProps) {
+    this.setState({
+      snackOpen: !!nextProps.errMsg,
+      snackMsg: nextProps.errMsg
+    });
+  }
+
   render() {
-    if(this.props.errMsg) {
-      this.props.displayMessage(this.props.errMsg);
-    }
+    const { classes } = this.props;
+
     return (
-      <ul className="task-list">
-        {
-          this.props.list.map(item => (
-            <TaskItem
-              key={item.id}
-              id={item.id}
-              title={item.title}
-              state={item.state}
-              gurl={item.gurl}
-            />
-          ))
-        }
-      </ul>
+      <div className={classes.root}>
+        <AppBar position="static">
+          <Toolbar>
+            <Typography className={classes.title} variant="title" color="inherit">
+              Tasks
+            </Typography>
+          </Toolbar>
+        </AppBar>
+
+        <GalleryList className={classes.taskList}>
+          {
+            this.props.list.map(item => (
+              <TaskItem
+                key={item.id}
+                id={item.id}
+                state={item.state}
+                title={item.title}
+                gurl={item.gurl}
+              />
+            ))
+          }
+        </GalleryList>
+
+        <Snackbar
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+          open={this.state.snackOpen}
+          onClose={this.handleSnackClose}
+          message={<span>{this.state.snackMsg}</span>}
+          autoHideDuration={3000}
+        />
+      </div>
     )
+  }
+
+  handleSnackClose = () => {
+    this.setState({ snackOpen: false });
   }
 
   componentDidMount() {
@@ -35,7 +88,7 @@ class TaskList extends React.Component {
   componentWillUnmount() {
     clearInterval(this.intervalID);
   }
-}
+}));
 
 const mapStateToProps = state => ({
   list: state.taskList.list,
@@ -43,8 +96,7 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  fetchTaskList: () => dispatch(fetchTaskList()),
-  displayMessage: (text) => dispatch(messageActions.displayMessage(text))
+  fetchTaskList: () => dispatch(fetchTaskList())
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaskList);

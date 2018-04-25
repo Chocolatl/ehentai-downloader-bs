@@ -1,11 +1,8 @@
 import React from 'react';
-import './style.css';
 
 class TaskInfo extends React.Component {
-  constructor() {
-    super(...arguments);
-    this.state = {};
-  }
+
+  state = {};
 
   render() {
     const info = this.state.info;
@@ -15,7 +12,7 @@ class TaskInfo extends React.Component {
       return <div>{info.errMsg}</div>;
     } else {
       return (
-        <div className="task-info">
+        <div>
           <p>ID：{info.id}</p>
           <p>状态：{info.state}</p>
           <p>标题：{info.title}</p>
