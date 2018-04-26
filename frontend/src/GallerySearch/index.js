@@ -2,6 +2,8 @@ import React from 'react';
 import {connect} from 'react-redux';
 import {actions as taskActions} from '../TaskList';
 import {withStyles} from 'material-ui/styles';
+import Tips from './views/Tips';
+import Results from './views/Results';
 
 import Snackbar from 'material-ui/Snackbar';
 import IconButton from 'material-ui/IconButton';
@@ -10,8 +12,6 @@ import Input from 'material-ui/Input';
 import Typography from 'material-ui/Typography';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
-import GalleryList from '../GalleryList/GalleryList';
-import GalleryListItem from '../GalleryList/GalleryListItem';
 
 const styles = theme => ({
   root: {
@@ -70,50 +70,6 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
     results: null
   };
 
-  Tips = ({className = ''}) => (
-    <div className={className}>
-      <p>请输入关键字进行搜索，如：</p>
-      <p>東方Project chinese、chino kafuu chinese</p>
-      <p>或输入完整的Gallery URL，如：</p>
-      <p>https://e-hentai.org/g/1177637/06dd559f50、</p>
-      <p>https://exhentai.org/g/1177637/06dd559f50</p>
-    </div>
-  );
-
-  Results = ({className = '', onClickItem}) => {
-    const {results} = this.state;
-    const style = {
-      textAlign: 'center',
-      marginTop: 40
-    };
-    if(this.state.start) {
-      return <div style={style}>正在搜索...</div>
-    } else if (results.errMsg) {
-      return <div style={style}>{results.errMsg}</div>
-    } else if (results.items.length === 0) {
-      return <div style={style}>搜索结果为空</div>
-    } else {
-      return (
-        <GalleryList className={className}>
-          {
-            results.items.map(item => {
-              let Button = () => (
-                <IconButton onClick={() => onClickItem(item.url)}>
-                  <Icon>file_download</Icon>
-                </IconButton>
-              );
-              return (
-                <GalleryListItem imgSrc={item.cover} button={<Button />}>
-                  <div style={{lineHeight: 1.4}}>{item.title}</div>
-                </GalleryListItem>
-              )
-            })
-          }
-        </GalleryList>
-      )
-    }
-  };
-
   render() {
     const {classes, className, style} = this.props;
 
@@ -145,8 +101,13 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
         <div className={classes.searchResult}>
           {
             (this.state.start || this.state.results) ? 
-              <this.Results className={classes.list} onClickItem={this.onClickItem} /> : 
-              <this.Tips className={classes.tips} />
+              <Results
+                start={this.state.start}
+                className={classes.list}
+                onClickItem={this.onClickItem}
+                results={this.state.results}
+              /> : 
+              <Tips className={classes.tips} />
           }
         </div>
 
@@ -178,7 +139,6 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
   }
 
   onSearch = (ev) => {
-    // BUG：当在搜索未完成时切换选项卡导致组件被卸载，在完成搜索时控制台会报错
     ev.preventDefault();    
     if(this.state.isUrl) {
       this.onClickItem(this.searchInput.value.trim());
