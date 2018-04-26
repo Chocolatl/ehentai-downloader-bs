@@ -16,11 +16,10 @@ const styles = theme => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh',
-    '& > :first-child': {
-      flexGrow: 1,
-      overflowY: 'auto'
-    }
+    height: '100vh'
+  },
+  tabPanel: {
+    flexGrow: 1,
   },
   tab: {
     maxWidth: '50%'
@@ -38,10 +37,11 @@ const Index = withStyles(styles)(class extends React.Component {
 
   render() {
     const {classes} = this.props;
+    const {value} = this.state;
     return (
       <div className={classes.root}>
-        {this.state.value === 0 && <GallerySearch />}
-        {this.state.value === 1 && <TaskList />}
+        <GallerySearch className={classes.tabPanel} style={value !== 0 ? {display: 'none'} : {}} />
+        <TaskList className={classes.tabPanel} style={value !== 1 ? {display: 'none'} : {}} />
         <Tabs
           value={this.state.value}
           onChange={this.handleChange}
