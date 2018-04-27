@@ -66,6 +66,7 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
     snackOpen: false,
     snackMsg: '',
     start: false,
+    startNext: false,
     isUrl: false,
     results: null
   };
@@ -89,10 +90,14 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
               fullWidth
               className={classes.searchInput}
               inputRef={this.searchInputRef}
-              disabled={this.state.start}
+              disabled={this.state.start || this.state.startNext}
               onChange={this.onSearchInputChange}
             />
-            <IconButton className={classes.searchButton} onClick={this.onSearch} disabled={this.state.start}>
+            <IconButton
+              className={classes.searchButton}
+              onClick={this.onSearch}
+              disabled={this.state.start || this.state.startNext}
+            >
               <Icon>{this.state.isUrl ? 'file_download' : 'search'}</Icon>
             </IconButton>
           </div>
@@ -106,6 +111,7 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
                 className={classes.list}
                 onClickItem={this.onClickItem}
                 results={this.state.results}
+                onScrollToBottom={this.loadNextPage}
               /> : 
               <Tips className={classes.tips} />
           }
@@ -154,6 +160,24 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
       })
       .catch(err => this.setState({results: {errMsg: err.message}}))
       .then(() => this.setState({start: false}));
+  }
+
+  loadNextPage = () => {
+    const {results} = this.state;
+    
+    if(!results || results.errMsg || results.page === results.maxPage) return;
+    if(this.state.startNext === true) return;
+
+    this.setState({startNext: true});
+    fetch(`/eh/search?keywords=${results.keywords}&page=${results.page + 1}`)
+      .then(res => res.json())
+      .then(currentResults => {
+        this.setState({ results: {...currentResults, items: [...results.items, ...currentResults.items]} });
+      })
+      .catch(err => {
+        this.setState({ snackOpen: true, snackMsg: err.message });
+      })
+      .then(() => this.setState({startNext: false}));
   }
 
   onClickItem = (url) => {

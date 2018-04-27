@@ -9,6 +9,6 @@ const styles = theme => ({
   }
 });
 
-export default withStyles(styles)(({children, classes, className}) => (
-  <ul className={`${classes.root} ${className}`}>{children}</ul>
+export default withStyles(styles)(({children, classes, className, rootRef}) => (
+  <ul ref={rootRef} className={`${classes.root} ${className}`}>{children}</ul>
 ));
