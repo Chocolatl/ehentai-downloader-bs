@@ -76,6 +76,21 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
     results: null
   };
 
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      nextProps !== this.props || 
+      nextState.start !== this.state.start ||
+      nextState.isUrl !== this.state.isUrl ||
+      nextState.snackOpen !== this.state.snackOpen ||
+      nextState.startNext !== this.state.startNext ||
+      nextState.results !== this.state.results
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   render() {
     const {classes, className, style} = this.props;
 
