@@ -1,5 +1,5 @@
 import React from 'react';
-import {connect} from 'react-redux';
+import PropTypes from 'prop-types';
 import {actions as taskActions} from '../TaskList';
 import {withStyles} from 'material-ui/styles';
 import Tips from './views/Tips';
@@ -189,14 +189,16 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
   }
 
   onClickItem = (url) => {
+    let store = this.context.store;
+    let {addTaskItem, fetchTaskList} = taskActions;
     let done = (message) => this.setState({ snackOpen: true, snackMsg: message });
-    this.props.addTaskItem(url, (info) => done('任务创建成功'), (info) => done(info.errMsg));
+    store.dispatch(addTaskItem(url, (info) => done('任务创建成功'), (info) => done(info.errMsg)));
+    store.dispatch(fetchTaskList());
+  }
+
+  static contextTypes = {
+    store: PropTypes.object.isRequired,
   }
 });
 
-const mapDispatchToProps = (dispatch) => ({
-  fetchTaskList: () => dispatch(taskActions.fetchTaskList()),
-  addTaskItem: (url, onSuccess, onFailure) => dispatch(taskActions.addTaskItem(url, onSuccess, onFailure))
-});
-
-export default connect(null, mapDispatchToProps)(TaskSearch);
+export default TaskSearch;
