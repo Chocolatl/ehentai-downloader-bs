@@ -12,6 +12,7 @@ import Input from 'material-ui/Input';
 import Typography from 'material-ui/Typography';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
+import LinearProgress from 'material-ui/Progress/LinearProgress';
 
 const styles = theme => ({
   root: {
@@ -57,6 +58,10 @@ const styles = theme => ({
   },
   list: {
     overflowY: 'auto'
+  },
+  progress: {
+    flexShrink: 0,
+    height: 2
   }
 });
 
@@ -106,13 +111,16 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
         <div className={classes.searchResult}>
           {
             (this.state.start || this.state.results) ? 
-              <Results
-                start={this.state.start}
-                className={classes.list}
-                onClickItem={this.onClickItem}
-                results={this.state.results}
-                onScrollToBottom={this.loadNextPage}
-              /> : 
+              <React.Fragment>
+                <Results
+                  start={this.state.start}
+                  onClickItem={this.onClickItem}
+                  results={this.state.results}
+                  onScrollToBottom={this.loadNextPage}
+                  className={classes.list}
+                />
+                {this.state.startNext && <LinearProgress className={classes.progress} />}
+              </React.Fragment> : 
               <Tips className={classes.tips} />
           }
         </div>
