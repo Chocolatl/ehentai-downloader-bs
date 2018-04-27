@@ -38,7 +38,7 @@ export default class extends React.Component {
                 </IconButton>
               );
               return (
-                <GalleryListItem imgSrc={item.cover} button={<Button />}>
+                <GalleryListItem imgSrc={'/eh/proxy?url=' + encodeURIComponent(item.cover)} button={<Button />}>
                   <div style={{ lineHeight: 1.4 }}>{item.title}</div>
                 </GalleryListItem>
               );

@@ -56,4 +56,35 @@ router.get('/search', function (req, res, next) {
   });
 });
 
+function requestData (url, userOptions) {
+  return new Promise(function (resolve, reject) {
+    let options = {url, ...userOptions};
+    let response;
+    let data = Buffer.alloc(0);
+
+    request(options, function (err) {
+      if (err) return reject(err);
+    }).on('response', function (res) {
+      response = res;
+    }).on('data', function (chunk) {
+      data = Buffer.concat([data, chunk]);
+    }).on('end', function () {
+      return resolve({response, body: data});
+    });
+  });
+}
+
+router.get('/proxy', function(req, res, next) {
+  let url = req.query.url || '';
+  let proxyUrls = ['https://exhentai.org/', 'https://e-hentai.org/', 'https://ehgt.org/'];
+  if(proxyUrls.every(s => url.indexOf(s) !== 0)) {
+    return res.status(403).end();
+  }
+  requestData(url, {
+    headers: {
+      Cookie: Object.entries(USER_CONFIG['login']).map(i => i.join('=')).join('; ')
+    }
+  }).then(({body}) => res.end(body)).catch(next);
+});
+
 module.exports = router;
