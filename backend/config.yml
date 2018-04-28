@@ -72,3 +72,9 @@ login:
   # 在浏览器成功登录里站(exhentai)后，获取以下cookie的值并填入下方
   # 如果仅是登录下载表站(e-hentai)的Gallery，可以不填写下面的字段
   igneous: ""
+
+  # 如果需要显示日语标题，请在E站设置 Gallery Name Display 为 Japanese Title (if available)，注意表站和里站使用的是两套不同的设置
+  # 接下来在下方填入Key为"sk"的Cookie项
+  # 注意填写sk后，需要确保浏览模式设置为 List View 而不是 Thumbnail View，否则会导致搜索路由无法正常工作
+
+  sk: ""
