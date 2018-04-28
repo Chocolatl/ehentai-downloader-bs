@@ -22,7 +22,7 @@ const styles = theme => ({
   title: {
   },
   searchForm: {
-    margin: '8px 16px',
+    margin: '8px',
   },
   inputWrap: {
     position: 'relative'
