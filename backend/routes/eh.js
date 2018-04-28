@@ -11,7 +11,8 @@ router.get('/search', function (req, res, next) {
   let isLoginEx = !!USER_CONFIG['login']['igneous'];
   let keywords = req.query.keywords;
   let page = req.query.page || '0';
-  let searchUrl = (keywords, ex = false) => `https://e${ex ? 'x' : '-'}hentai.org/?page=${page}&f_doujinshi=1&f_manga=1&f_artistcg=1&f_gamecg=1&f_western=1&f_non-h=1&f_imageset=1&f_cosplay=1&f_asianporn=1&f_misc=1&f_search=${encodeURIComponent(keywords)}&f_apply=Apply+Filter`;
+  let categories = ['f_doujinshi', 'f_manga', 'f_artistcg', 'f_gamecg', /*'f_western',*/ 'f_imageset', 'f_non-h', 'f_cosplay', /*'f_asianporn',*/ /*'f_misc',*/];
+  let searchUrl = (keywords, ex = false) => `https://e${ex ? 'x' : '-'}hentai.org/?page=${page}&${categories.map(e => e + '=1').join('&')}&f_search=${encodeURIComponent(keywords)}&f_apply=Apply+Filter`;
   request.get({
     url: searchUrl(keywords, isLoginEx),
     headers: {
