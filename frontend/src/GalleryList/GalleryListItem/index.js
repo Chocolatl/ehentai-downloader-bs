@@ -33,8 +33,21 @@ const styles = theme => ({
   }
 });
 
-// TODO：标注属性，this.props.onClick this.props.button都是可选参数
 export default withStyles(styles)(class extends React.Component {
+
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      nextProps.imgSrc !== this.props.imgSrc ||
+      nextProps.button !== this.props.button ||
+      nextProps.onClick !== this.props.onClick ||
+      nextProps.children !== this.props.children
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+
   render() {
     const {classes} = this.props;
     return (
@@ -57,7 +70,7 @@ export default withStyles(styles)(class extends React.Component {
   static propTypes = {
     imgSrc: PropTypes.string.isRequired,
     onClick: PropTypes.func,
-    className: PropTypes.object,
-    children: PropTypes.node
+    children: PropTypes.node,
+    button: PropTypes.node
   }
 });
