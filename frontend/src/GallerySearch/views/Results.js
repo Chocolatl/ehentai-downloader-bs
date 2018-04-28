@@ -6,6 +6,21 @@ import IconButton from 'material-ui/IconButton';
 import Icon from 'material-ui/Icon';
 
 export default class extends React.Component {
+  
+  shouldComponentUpdate(nextProps, nextState) {
+    if (
+      nextProps.start !== this.props.start ||
+      nextProps.className !== this.props.className ||
+      nextProps.results !== this.props.results ||
+      nextProps.onScrollToBottom !== this.props.onScrollToBottom ||
+      nextProps.onClickItem !== this.props.onClickItem
+    ) {
+      return true;
+    } else {
+      return false;
+    }
+  }
+  
   rootRef = (node) => {
     if(node == null) return;
     node.addEventListener('scroll', ev => {
@@ -38,7 +53,7 @@ export default class extends React.Component {
                 </IconButton>
               );
               return (
-                <GalleryListItem imgSrc={'/eh/proxy?url=' + encodeURIComponent(item.cover)} button={<Button />}>
+                <GalleryListItem key={item.id} imgSrc={'/eh/proxy?url=' + encodeURIComponent(item.cover)} button={<Button />}>
                   <div style={{ lineHeight: 1.4 }}>{item.title}</div>
                 </GalleryListItem>
               );

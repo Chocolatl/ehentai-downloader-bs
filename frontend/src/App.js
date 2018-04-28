@@ -40,8 +40,8 @@ const Index = withStyles(styles)(class extends React.Component {
     const {value} = this.state;
     return (
       <div className={classes.root}>
-        <GallerySearch className={classes.tabPanel} style={value !== 0 ? {display: 'none'} : {}} />
-        <TaskList className={classes.tabPanel} style={value !== 1 ? {display: 'none'} : {}} />
+        <GallerySearch className={classes.tabPanel} hidden={value !== 0} />
+        <TaskList className={classes.tabPanel} hidden={value !== 1} />
         <Tabs
           value={this.state.value}
           onChange={this.handleChange}

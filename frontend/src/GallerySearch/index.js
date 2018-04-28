@@ -78,7 +78,8 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
 
   shouldComponentUpdate(nextProps, nextState) {
     if (
-      nextProps !== this.props || 
+      nextProps.className !== this.props.className || 
+      nextProps.hidden !== this.props.hidden || 
       nextState.start !== this.state.start ||
       nextState.isUrl !== this.state.isUrl ||
       nextState.snackOpen !== this.state.snackOpen ||
@@ -92,10 +93,13 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
   }
 
   render() {
-    const {classes, className, style} = this.props;
+    const {classes, className, hidden} = this.props;
 
     return (
-      <div style={style} className={classes.root + (className ? ' ' + className : '')}>
+      <div
+        className={classes.root + (className ? ' ' + className : '')}
+        style={hidden ? {display: 'none'} : {}}
+      >
         <AppBar position="static">
           <Toolbar>
             <Typography className={classes.title} variant="title" color="inherit">

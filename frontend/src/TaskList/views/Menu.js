@@ -38,8 +38,13 @@ class FadeMenu extends React.Component {
           transition={Fade}
         >
           {
-            this.props.options.map(([t, f]) => (
-              <MenuItem onClick={() => {this.handleClose(); f();}}>{t}</MenuItem>
+            this.props.options.map(([text, func]) => (
+              <MenuItem
+                key={text}
+                onClick={() => {this.handleClose(); func();}}
+              >
+                {text}
+              </MenuItem>
             ))
           }
         </Menu>

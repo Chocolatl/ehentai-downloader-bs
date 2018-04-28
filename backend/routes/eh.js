@@ -41,6 +41,7 @@ router.get('/search', function (req, res, next) {
       }
 
       return {
+        id: id,
         cover: cover,
         title: el.querySelector('.it5 > a').textContent,
         url: el.querySelector('.it5 > a').href

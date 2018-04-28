@@ -39,10 +39,13 @@ const TaskList = withStyles(styles)(withRouter(class extends React.Component {
   }
 
   render() {
-    const {classes, className, style} = this.props;
+    const {classes, className, hidden} = this.props;
     
     return (
-      <div style={style} className={classes.root + (className ? ' ' + className : '')}>
+      <div
+        className={classes.root + (className ? ' ' + className : '')}
+        style={hidden ? {display: 'none'} : {}}
+      >
         <AppBar position="static">
           <Toolbar>
             <Typography className={classes.title} variant="title" color="inherit">
