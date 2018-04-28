@@ -40,6 +40,7 @@ const styles = theme => ({
     flexGrow: 1,
     display: 'flex',
     flexDirection: 'column',
+    overflow: 'hidden',    
     '& > :first-child': {
       padding: '0 8px',
       flexGrow: 1

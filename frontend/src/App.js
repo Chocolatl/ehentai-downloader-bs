@@ -20,6 +20,7 @@ const styles = theme => ({
   },
   tabPanel: {
     flexGrow: 1,
+    overflow: 'hidden'
   },
   tab: {
     maxWidth: '50%'
