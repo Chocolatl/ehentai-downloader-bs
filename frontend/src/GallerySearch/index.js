@@ -193,12 +193,16 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
   loadNextPage = () => {
     const {results} = this.state;
     
-    if(!results || results.errMsg || results.page === results.maxPage) return;
+    if(!results || results.errMsg || results.page >= results.maxPage) return;
     if(this.state.startNext === true) return;
 
     this.setState({startNext: true});
     fetch(`/eh/search?keywords=${results.keywords}&page=${results.page + 1}`)
       .then(res => res.json())
+      .then(rs => {
+        if(rs.errMsg) throw new Error(rs.errMsg)
+        else return rs;
+      })
       .then(currentResults => {
         this.setState({ results: {...currentResults, items: [...results.items, ...currentResults.items]} });
       })
