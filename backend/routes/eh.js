@@ -25,8 +25,10 @@ router.get('/search', function (req, res, next) {
     let maxPage;
     if (pageLinks.length === 0 || pageLinks.length === 1) {
       maxPage = '0';
-    } else {
+    } else if (document.querySelector('.ptt td:last-child > a')) {
       maxPage = /page=(\d+)/.exec(pageLinks[pageLinks.length - 2].href)[1];
+    } else {
+      maxPage = /page=(\d+)/.exec(pageLinks[pageLinks.length - 1].href)[1];
     }
 
     items = items.map(el => {
