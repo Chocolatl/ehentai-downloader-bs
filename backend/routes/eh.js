@@ -39,6 +39,14 @@ router.get('/search', function (req, res, next) {
       let cover;
       let id = /show_image_pane\((\d+)\)/.exec(el.querySelector('.it5 > a').outerHTML)[1];
       let parts = document.getElementById('i' + id).textContent.split('~');
+      
+      let category;
+      category = el.querySelector('.itdc > a').href.split('/');
+      category = category[category.length - 1];
+      
+      let [, left, top] = /(\-?\d+)px (\-?\d+)px/.exec(el.querySelector('.it4r').style.backgroundPosition);
+      let rating = 5 + left / 16 - (top === '-21' ? 0.5 : 0);
+
       if (parts.length >= 4) {
         cover = parts[0].replace('init', 'http') + '://' + parts[1] + '/' + parts[2];
       } else {
@@ -50,7 +58,9 @@ router.get('/search', function (req, res, next) {
         id: id,
         cover: cover,
         title: el.querySelector('.it5 > a').textContent,
-        url: el.querySelector('.it5 > a').href
+        url: el.querySelector('.it5 > a').href,
+        category: category,
+        rating: rating
       }
     });
 

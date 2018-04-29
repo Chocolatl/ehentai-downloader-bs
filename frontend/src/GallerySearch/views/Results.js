@@ -4,6 +4,7 @@ import GalleryListItem from '../../GalleryList/GalleryListItem';
 
 import IconButton from 'material-ui/IconButton';
 import Icon from 'material-ui/Icon';
+import Chip from 'material-ui/Chip';
 
 export default class extends React.Component {
   
@@ -54,7 +55,11 @@ export default class extends React.Component {
               );
               return (
                 <GalleryListItem key={item.id} imgSrc={'/eh/proxy?url=' + encodeURIComponent(item.cover)} button={<Button />}>
-                  <div style={{ lineHeight: 1.4 }}>{item.title}</div>
+                  <div>
+                    <div style={{lineHeight: 1.6}}>{item.title}</div>
+                    <Chip label={item.category} style={{height: 26, marginRight: 8}} />
+                    <Chip label={'rating≈' + item.rating} style={{height: 26}} />
+                  </div>
                 </GalleryListItem>
               );
             })
