@@ -19,11 +19,14 @@ router.get('/search', function (req, res, next) {
       Cookie: Object.entries(USER_CONFIG['login']).map(i => i.join('=')).join('; ')
     }
   }, (err, response, body) => {
+    if (body == null) return next(new Error('获取搜索结果失败'));
     const { document } = (new JSDOM(body)).window;
     let items = Array.from(document.querySelectorAll('.gtr0, .gtr1'));
     let pageLinks = document.querySelectorAll('.ptt a');
     let maxPage;
-    if (pageLinks.length === 0 || pageLinks.length === 1) {
+    if (pageLinks.length === 0) {
+      return next(new Error('获取搜索结果失败'));
+    } else if (pageLinks.length === 1) {
       maxPage = '0';
     } else if (document.querySelector('.ptt td:last-child > a')) {
       maxPage = /page=(\d+)/.exec(pageLinks[pageLinks.length - 2].href)[1];
