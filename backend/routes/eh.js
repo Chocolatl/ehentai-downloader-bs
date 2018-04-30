@@ -25,7 +25,7 @@ router.get('/search', function (req, res, next) {
     let pageLinks = document.querySelectorAll('.ptt a');
     let maxPage;
     if (pageLinks.length === 0) {
-      return next(new Error('获取搜索结果失败'));
+      return next(new Error('搜索结果为空'));
     } else if (pageLinks.length === 1) {
       maxPage = '0';
     } else if (document.querySelector('.ptt td:last-child > a')) {
