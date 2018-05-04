@@ -16,7 +16,10 @@ const styles = theme => ({
   root: {
     display: 'flex',
     flexDirection: 'column',
-    height: '100vh'
+    height: '100vh',
+    width: '100vw',
+    position: 'absolute',
+    zIndex: 500
   },
   tabPanel: {
     flexGrow: 1,
@@ -24,6 +27,10 @@ const styles = theme => ({
   },
   tab: {
     maxWidth: '50%'
+  },
+  subPage: {
+    position: 'absolute',
+    zIndex: 501
   }
 });
 
@@ -40,31 +47,38 @@ const Index = withStyles(styles)(class extends React.Component {
     const {classes} = this.props;
     const {value} = this.state;
     return (
-      <div className={classes.root}>
-        <GallerySearch className={classes.tabPanel} hidden={value !== 0} />
-        <TaskList className={classes.tabPanel} hidden={value !== 1} />
-        <Tabs
-          value={this.state.value}
-          onChange={this.handleChange}
-          fullWidth
-          indicatorColor="primary"
-          textColor="primary"
-        >
-          <Tab className={classes.tab} icon={<Icon>search</Icon>} />
-          <Tab className={classes.tab} icon={<Icon>list</Icon>} />
-        </Tabs>
-      </div>
+      <React.Fragment>
+        <div className={classes.root}>
+          <GallerySearch className={classes.tabPanel} hidden={value !== 0} />
+          <TaskList className={classes.tabPanel} hidden={value !== 1} />
+          <Tabs
+            value={this.state.value}
+            onChange={this.handleChange}
+            fullWidth
+            indicatorColor="primary"
+            textColor="primary"
+          >
+            <Tab className={classes.tab} icon={<Icon>search</Icon>} />
+            <Tab className={classes.tab} icon={<Icon>list</Icon>} />
+          </Tabs>
+        </div>
+
+        <Route
+          path="/info/:id"
+          render={
+            ({match}) => <TaskInfo id={match.params.id} className={classes.subPage} />
+          }
+        />
+        <Route
+          path="/preview/:id"
+          render={
+            ({match}) => <TaskPreview id={match.params.id} className={classes.subPage} />
+          }
+        />
+      </React.Fragment>
     );
   }
 });
-
-const Info = ({match}) => {
-  return <TaskInfo id={match.params.id} />
-}
-
-const Preview = ({match}) => {
-  return <TaskPreview id={match.params.id} />
-}
 
 class App extends React.Component {
   render() {
@@ -74,8 +88,6 @@ class App extends React.Component {
         <div className="App">
         <Switch>
           <Route exact path="/" component={Index} />
-          <Route exact path="/info/:id" component={Info} />
-          <Route path="/preview/:id" component={Preview} />
           <Route component={Index} />
         </Switch>
         </div>

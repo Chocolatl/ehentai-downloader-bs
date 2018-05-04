@@ -14,6 +14,8 @@ const styles = theme => ({
 		display: 'flex',
 		flexDirection: 'column',
 		height: '100vh',
+		width: '100vw',
+		background: '#fff',		
 		'& > :last-child:not(:first-child)': {
 			overflowY: 'auto',
 			flexGrow: 1
@@ -27,8 +29,8 @@ const styles = theme => ({
 	}
 });
 
-export default withRouter(withStyles(styles)(({ classes, id, history }) => (
-	<div className={classes.root}>
+export default withRouter(withStyles(styles)(({ className, classes, id, history }) => (
+	<div className={classes.root + (className ? ' ' + className : '')}>
 		<AppBar position="static">
 			<Toolbar>
 				<Typography className={classes.title} variant="title" color="inherit">
