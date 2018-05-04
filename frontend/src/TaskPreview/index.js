@@ -10,37 +10,37 @@ import IconButton from 'material-ui/IconButton';
 import Icon from 'material-ui/Icon';
 
 const styles = theme => ({
-	root: {
-		display: 'flex',
-		flexDirection: 'column',
-		height: '100vh',
-		width: '100vw',
-		background: '#fff',		
-		'& > :last-child:not(:first-child)': {
-			overflowY: 'auto',
-			flexGrow: 1
-		}
-	},
-	toolBar: {
-		display: 'flex'
-	},
-	title: {
-		flexGrow: 1
-	}
+  root: {
+    display: 'flex',
+    flexDirection: 'column',
+    height: '100vh',
+    width: '100vw',
+    background: '#fff',
+    '& > :last-child:not(:first-child)': {
+      overflowY: 'auto',
+      flexGrow: 1
+    }
+  },
+  toolBar: {
+    display: 'flex'
+  },
+  title: {
+    flexGrow: 1
+  }
 });
 
 export default withRouter(withStyles(styles)(({ className, classes, id, history }) => (
-	<div className={classes.root + (className ? ' ' + className : '')}>
-		<AppBar position="static">
-			<Toolbar>
-				<Typography className={classes.title} variant="title" color="inherit">
-					Preview
+  <div className={classes.root + (className ? ' ' + className : '')}>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography className={classes.title} variant="title" color="inherit">
+          Preview
 				</Typography>
-				<IconButton color="inherit" style={{ marginRight: -16 }} onClick={history.goBack}>
-					<Icon>clear</Icon>
-				</IconButton>
-			</Toolbar>
-		</AppBar>
-		<TaskPreview id={id} />
-	</div>
+        <IconButton color="inherit" style={{ marginRight: -16 }} onClick={history.goBack}>
+          <Icon>clear</Icon>
+        </IconButton>
+      </Toolbar>
+    </AppBar>
+    <TaskPreview id={id} />
+  </div>
 )));
