@@ -29,7 +29,7 @@ const styles = theme => ({
   }
 });
 
-export default withRouter(withStyles(styles)(({ className, classes, id, history }) => (
+export default withRouter(withStyles(styles)(({ className, classes, id, url, history }) => (
   <div className={classes.root + (className ? ' ' + className : '')}>
     <AppBar position="static">
       <Toolbar>
@@ -41,6 +41,6 @@ export default withRouter(withStyles(styles)(({ className, classes, id, history 
         </IconButton>
       </Toolbar>
     </AppBar>
-    <TaskPreview id={id} />
+    <TaskPreview id={id} url={url} />
   </div>
 )));

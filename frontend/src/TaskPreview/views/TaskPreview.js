@@ -1,6 +1,5 @@
 import React from 'react';
-import {connect} from 'react-redux';
-import {withRouter, Link} from 'react-router-dom';
+import {Link} from 'react-router-dom';
 import PhotoSwipeComponent from './PhotoSwipe';
 
 import Snackbar from 'material-ui/Snackbar';
@@ -38,8 +37,6 @@ class TaskPreview extends React.Component {
       h: file.height
     }));
 
-    let matchedURL = this.props.match.url;
-
     return (
       <div className="task-preview">
         <header>
@@ -49,7 +46,7 @@ class TaskPreview extends React.Component {
           {
             info.files.map(({index, fileName}, arrIndex) => (
               <div key={index} className="thumb">
-                <Link to={matchedURL + (/\/$/.test(matchedURL) ? '' : '/') + arrIndex}>
+                <Link to={this.props.url + '/' + arrIndex}>
                 <img
                   src={`/task/${info.id}/preview/${index}?thumb=yes`}
                   alt={fileName}
@@ -70,7 +67,7 @@ class TaskPreview extends React.Component {
           <div className="thumb empty"></div>
         </div>
 
-        <PhotoSwipeComponent items={items} match={this.props.match} />
+        <PhotoSwipeComponent items={items} url={this.props.url} />
 
         <Snackbar
           anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
@@ -109,4 +106,4 @@ class TaskPreview extends React.Component {
   }
 }
 
-export default withRouter(connect(null, null)(TaskPreview));
+export default TaskPreview;

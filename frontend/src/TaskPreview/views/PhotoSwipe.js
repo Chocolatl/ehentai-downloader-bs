@@ -58,7 +58,7 @@ class PhotoSwipeContainer extends React.Component{
           </div>
         </div>
 
-        <Route exact strict path={this.props.match.url + '/:index'} component={
+        <Route exact strict path={this.props.url + '/:index'} component={
           class extends React.Component {
             render() {
               return null;

@@ -5,11 +5,12 @@ import GallerySearch from './GallerySearch';
 import TaskList from './TaskList';
 import TaskPreview from './TaskPreview';
 import TaskInfo from './TaskInfo';
-import {BrowserRouter as Router, Route, Switch} from 'react-router-dom';
+import {BrowserRouter as Router, Route} from 'react-router-dom';
 import withRoot from './withRoot';
 
 import Tabs, {Tab} from 'material-ui/Tabs';
 import Icon from 'material-ui/Icon';
+import Slide from 'material-ui/transitions/Slide';
 import {withStyles} from 'material-ui/styles';
 
 const styles = theme => ({
@@ -33,6 +34,77 @@ const styles = theme => ({
     zIndex: 501
   }
 });
+
+class EventComponent extends React.Component {
+  componentDidMount() {
+    this.props.onMount && this.props.onMount();
+  }
+  componentWillUnmount() {
+    this.props.onUnmount && this.props.onUnmount();
+  }
+  render() {
+    return null;
+  }
+}
+
+class TaskPreviewRoute extends React.Component {
+  state = {
+    in: false,
+    id: '',
+    url: ''
+  };
+
+  render() {
+    return (
+      <React.Fragment>
+        <Slide direction="left" timeout={300} in={this.state.in} mountOnEnter unmountOnExit>
+          <TaskPreview id={this.state.id} url={this.state.url} className={this.props.className} />
+        </Slide>
+    
+        <Route
+          path="/preview/:id"
+          render={
+            ({match}) => (
+              <EventComponent
+                onMount={() => this.setState({in: true, id: match.params.id, url: match.url})}
+                onUnmount={() => this.setState({in: false})}
+              />
+            )
+          }
+        />
+      </React.Fragment>
+    );
+  }
+}
+
+class TaskInfoRoute extends React.Component {
+  state = {
+    in: false,
+    id: ''
+  };
+
+  render() {
+    return (
+      <React.Fragment>
+        <Slide direction="left" timeout={300} in={this.state.in} mountOnEnter unmountOnExit>
+          <TaskInfo id={this.state.id} className={this.props.className} />
+        </Slide>
+    
+        <Route
+          path="/info/:id"
+          render={
+            ({match}) => (
+              <EventComponent
+                onMount={() => this.setState({in: true, id: match.params.id})}
+                onUnmount={() => this.setState({in: false})}
+              />
+            )
+          }
+        />
+      </React.Fragment>
+    );
+  }
+}
 
 const Index = withStyles(styles)(class extends React.Component {
   state = {
@@ -63,18 +135,8 @@ const Index = withStyles(styles)(class extends React.Component {
           </Tabs>
         </div>
 
-        <Route
-          path="/info/:id"
-          render={
-            ({match}) => <TaskInfo id={match.params.id} className={classes.subPage} />
-          }
-        />
-        <Route
-          path="/preview/:id"
-          render={
-            ({match}) => <TaskPreview id={match.params.id} className={classes.subPage} />
-          }
-        />
+        <TaskPreviewRoute className={classes.subPage} />
+        <TaskInfoRoute className={classes.subPage} />
       </React.Fragment>
     );
   }
@@ -86,10 +148,7 @@ class App extends React.Component {
       <Provider store={store}>
       <Router>
         <div className="App">
-        <Switch>
-          <Route exact path="/" component={Index} />
-          <Route component={Index} />
-        </Switch>
+          <Index />
         </div>
       </Router>
       </Provider>
