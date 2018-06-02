@@ -1,4 +1,5 @@
 import React from 'react';
+import classnames from 'classnames';
 import {withStyles} from 'material-ui/styles';
 
 const styles = theme => ({
@@ -10,5 +11,5 @@ const styles = theme => ({
 });
 
 export default withStyles(styles)(({children, classes, className, rootRef}) => (
-  <ul ref={rootRef} className={`${classes.root} ${className}`}>{children}</ul>
+  <ul ref={rootRef} className={classnames(classes.root, className)}>{children}</ul>
 ));

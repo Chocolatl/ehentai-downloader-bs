@@ -4,6 +4,7 @@ import { fetchTaskList } from '../actions';
 import TaskItem from './TaskItem';
 import { withRouter } from 'react-router-dom';
 import { withStyles } from 'material-ui/styles';
+import classnames from 'classnames';
 
 import Snackbar from 'material-ui/Snackbar';
 import Typography from 'material-ui/Typography';
@@ -43,7 +44,7 @@ const TaskList = withStyles(styles)(withRouter(class extends React.Component {
     
     return (
       <div
-        className={classes.root + (className ? ' ' + className : '')}
+        className={classnames(classes.root, className)}
         style={hidden ? {display: 'none'} : {}}
       >
         <AppBar position="static">

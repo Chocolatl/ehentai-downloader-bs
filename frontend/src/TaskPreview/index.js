@@ -1,6 +1,7 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import { withRouter } from 'react-router-dom';
+import classnames from 'classnames';
 import TaskPreview from './views/TaskPreview';
 
 import Typography from 'material-ui/Typography';
@@ -30,7 +31,7 @@ const styles = theme => ({
 });
 
 export default withRouter(withStyles(styles)(({ className, classes, id, url, history }) => (
-  <div className={classes.root + (className ? ' ' + className : '')}>
+  <div className={classnames(classes.root, className)}>
     <AppBar position="static">
       <Toolbar>
         <Typography className={classes.title} variant="title" color="inherit">

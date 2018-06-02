@@ -2,6 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import {actions as taskActions} from '../TaskList';
 import {withStyles} from 'material-ui/styles';
+import classnames from 'classnames';
 import Tips from './views/Tips';
 import Results from './views/Results';
 
@@ -98,7 +99,7 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
 
     return (
       <div
-        className={classes.root + (className ? ' ' + className : '')}
+        className={classnames(classes.root, className)}
         style={hidden ? {display: 'none'} : {}}
       >
         <AppBar position="static">
