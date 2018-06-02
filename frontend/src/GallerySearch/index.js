@@ -120,8 +120,8 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
               onChange={this.onSearchInputChange}
             />
             <IconButton
+              type="submit"
               className={classes.searchButton}
-              onClick={this.onSearch}
               disabled={this.state.start || this.state.startNext}
             >
               <Icon>{this.state.isUrl ? 'file_download' : 'search'}</Icon>
