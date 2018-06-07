@@ -5,11 +5,11 @@ import {withStyles} from 'material-ui/styles';
 import classnames from 'classnames';
 import Tips from './views/Tips';
 import Results from './views/Results';
+import AutoComplete from './views/AutoComplete';
 
 import Snackbar from 'material-ui/Snackbar';
 import IconButton from 'material-ui/IconButton';
 import Icon from 'material-ui/Icon';
-import Input from 'material-ui/Input';
 import Typography from 'material-ui/Typography';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
@@ -34,6 +34,7 @@ const styles = theme => ({
   },
   searchButton: {
     position: 'absolute',
+    top: 0,
     right: 0,
     paddingBottom: 8
   },
@@ -75,7 +76,9 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
     start: false,
     startNext: false,
     isUrl: false,
-    results: null
+    results: null,
+    inputValue: '',
+    selectedTags: []
   };
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -86,7 +89,9 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
       nextState.isUrl !== this.state.isUrl ||
       nextState.snackOpen !== this.state.snackOpen ||
       nextState.startNext !== this.state.startNext ||
-      nextState.results !== this.state.results
+      nextState.results !== this.state.results ||
+      nextState.inputValue !== this.state.nextState ||
+      nextState.selectedTags !== this.state.selectedTags
     ) {
       return true;
     } else {
@@ -112,12 +117,13 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
 
         <form className={classes.searchForm} onSubmit={this.onSearch}>
           <div className={classes.inputWrap}>
-            <Input
-              fullWidth
+            <AutoComplete
               className={classes.searchInput}
               inputRef={this.searchInputRef}
               disabled={this.state.start || this.state.startNext}
-              onChange={this.onSearchInputChange}
+              onInputValueChange={this.onSearchInputChange}
+              onSelectedTagsChange={this.onSelectedTagsChange}
+              inputValue={this.state.inputValue}
             />
             <IconButton
               type="submit"
@@ -161,12 +167,24 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
     this.setState({ snackOpen: false });
   }
 
-  onSearchInputChange = () => {
-    if(/^https?:\/\/e(-|x)hentai.org\/g[/0-9a-zA-Z]+$/.test(this.searchInput.value.trim())) {
-      this.setState({isUrl: true});
+  onSearchInputChange = (val) => {
+    if(/^https?:\/\/e(-|x)hentai.org\/g[/0-9a-zA-Z]+$/.test(val.trim())) {
+      this.setState({
+        isUrl: true,
+        inputValue: val
+      });
     } else {
-      this.setState({isUrl: false});
+      this.setState({
+        isUrl: false,
+        inputValue: val
+      });
     }
+  }
+
+  onSelectedTagsChange = (tags) => {
+    this.setState({
+      selectedTags: [...tags]
+    });
   }
 
   searchInputRef = (el) => {
@@ -174,13 +192,18 @@ const TaskSearch = withStyles(styles)(class extends React.Component {
   }
 
   onSearch = (ev) => {
+    this.searchInput.blur();  // 按回车提交的表单不会触发onblur事件，所以手动触发一次blur
     ev.preventDefault();    
     if(this.state.isUrl) {
-      this.onClickItem(this.searchInput.value.trim());
-      this.searchInput.value = '';
+      this.onClickItem(this.state.inputValue.trim());
+      this.setState({
+        inputValue: '',
+        isUrl: false
+      });
       return;
     }
-    let keywords = this.searchInput.value.trim();
+    const tags = this.state.selectedTags.map(t => `"${t[0]}"`).join(' ');
+    const keywords =  tags + ' ' + this.state.inputValue.trim();
     this.setState({start: true});
     fetch('/eh/search?keywords=' + keywords)
       .then(res => res.json())
