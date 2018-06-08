@@ -5,12 +5,14 @@ import ButtonBase from 'material-ui/ButtonBase';
 
 const styles = theme => ({
   root: {
-    height: 120,
+    maxHeight: 150,
+    minHeight: 120,
     display: 'flex',
     marginBottom: 8
   },
   imgWrap: {
-    height: 120,
+    maxHeight: 150,
+    minHeight: 120,
     width: 90,
     overflow: 'hidden',
     float: 'left',
